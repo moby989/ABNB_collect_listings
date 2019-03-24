@@ -105,13 +105,13 @@ class Airbnb_spyder(Spyder):
         
         if args and data:
             element  = args[0]
-#            print(element)
+            print(element)
             if isinstance(element,str):                
                 value = data.get(element)
-#                print('dict')
+                print('dict')
             else:
                 value = data[element]                
-#                print('list')
+                print('list')
 
             return value if len(args) == 1 else self.parserHelper(value, *args[1:])
         else:
