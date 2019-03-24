@@ -124,9 +124,10 @@ class Airbnb_spyder(Spyder):
         
         """
         property_list = []
+        print (data['explore_tabs'][0]['sections'][0]['listings'][0])
         data_s = self.parserHelper(data,'explore_tabs',0,'sections',0,'listings')
         print(data_s[1])
-        print (data['explore_tabs'][0]['sections'][0]['listings'][0])
+        
         for i in range(len(data_s)):
             
             property = {}            
