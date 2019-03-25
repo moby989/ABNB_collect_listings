@@ -31,13 +31,12 @@ def collect_db(url,price_ranges = None):
             
             r = my_spyder.get_r(url,payload)             
             data = r.json()            
-            print(r.text)
             number = my_spyder.getNumberProp(data)            
             print('Parsing pages for prices from ' + str(price[0]) + ' until ' + str(price[1]))
             print('Getting info for ' + str(number) + ' properties.')
             
             hist[str(number)] = (price[0],price[1])
-            print (data['explore_tabs'][0]['sections'][0]['listings'][0])            
+            print (data['explore_tabs'][0]['sections'][1]['listings'][0])            
             property_list.extend(my_spyder.parsePage(data))
                             
             ofs +=50
