@@ -35,8 +35,7 @@ def collect_db(url,price_ranges = None):
             print('Parsing pages for prices from ' + str(price[0]) + ' until ' + str(price[1]))
             print('Getting info for ' + str(number) + ' properties.')
             
-            hist[str(number)] = (price[0],price[1])
-            print (data['explore_tabs'][0]['sections'][1]['listings'][0])            
+            hist[str(number)] = (price[0],price[1])                    
             property_list.extend(my_spyder.parsePage(data))
                             
             ofs +=50
