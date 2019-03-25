@@ -29,9 +29,9 @@ def collect_db(url,price_ranges = None):
 
             payload = {'price_min':price[0],'price_max':price[1],'items_offset':ofs}
             
-            r = my_spyder.get_r(url,payload)    
-            print(r.text())
+            r = my_spyder.get_r(url,payload)             
             data = r.json()            
+            print(r.text)
             number = my_spyder.getNumberProp(data)            
             print('Parsing pages for prices from ' + str(price[0]) + ' until ' + str(price[1]))
             print('Getting info for ' + str(number) + ' properties.')
