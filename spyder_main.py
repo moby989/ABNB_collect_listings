@@ -95,7 +95,7 @@ class Spyder(object):
     def get_r(self,url, payload = None):
         
         if self.calls > 100:
-            self.timer(900)
+            self.timer(200)
             print ('DELAY AFTER 20 REQUESTS')
             self.calls = 0
         
