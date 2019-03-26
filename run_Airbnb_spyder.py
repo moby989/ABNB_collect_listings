@@ -29,13 +29,15 @@ def collect_db(url,price_ranges = None):
 
             payload = {'price_min':price[0],'price_max':price[1],'items_offset':ofs}
             
-            r = my_spyder.get_r(url,payload)             
-            data = r.json()            
+            r = my_spyder.get_r(url,payload)        
+            data = r.json()                                                                                                    
+            print(r.text)
             number = my_spyder.getNumberProp(data)            
             print('Parsing pages for prices from ' + str(price[0]) + ' until ' + str(price[1]))
             print('Getting info for ' + str(number) + ' properties.')
             
-            hist[str(number)] = (price[0],price[1])                    
+            hist[str(number)] = (price[0],price[1])
+            
             property_list.extend(my_spyder.parsePage(data))
                             
             ofs +=50
@@ -57,7 +59,7 @@ url = 'https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web
 
 price_ranges = [(0, 41, 306), (42, 51, 266), (52, 59, 267), (60, 66, 280), (67, 70, 445), (71, 74, 359), (75, 79, 401), (80, 84, 224), (85, 88, 619), (89, 91, 600), (92, 96, 493), (97, 99, 709), (100, 104, 535), (105, 107, 617), (108, 112, 404), (113, 117, 614), (118, 121, 521), (122, 126, 438), (127, 130, 374), (131, 137, 328), (138, 141, 408), (142, 145, 318), (146, 151, 359), (152, 159, 327), (160, 167, 274), (168, 174, 311), (175, 179, 333), (180, 188, 241), (189, 197, 259), (198, 204, 321), (205, 214, 297), (215, 228, 309), (229, 245, 298), (246, 254, 311), (255, 274, 312), (275, 289, 271), (290, 309, 290), (310, 335, 298), (336, 355, 290), (356, 390, 293), (391, 424, 310), (425, 474, 293), (475, 530, 307), (531, 613, 292), (614, 734, 290), (735, 899, 290), (900, 1210, 291), (1211, 2000, 239), (2001, 10000, 56)]
 
-data = collect_db(url, price_ranges[:2])
+data = collect_db(url, price_ranges[:1])
 
 #my_spyder = Airbnb_spyder(url)
 
