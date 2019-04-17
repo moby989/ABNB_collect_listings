@@ -32,10 +32,9 @@ headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0)\
 #update cookies to use in cloud version
 
 cookies = [
-
-    {
+{
     "domain": ".airbnb.com",
-    "expirationDate": 1681404785,
+    "expirationDate": 1681721174,
     "hostOnly": False,
     "httpOnly": False,
     "name": "__ssid",
@@ -44,7 +43,7 @@ cookies = [
     "secure": False,
     "session": False,
     "storeId": "0",
-    "value": "b9fe9a1f7cb9b51296bed288e04b42f",
+    "value": "742b75970e8208a0cef96da0b3c0d7c",
     "id": 1
 },
 {
@@ -57,12 +56,12 @@ cookies = [
     "secure": True,
     "session": True,
     "storeId": "0",
-    "value": "V4%24.airbnb.com%24nrSFOGot4zw%24yoPBv1IV7L6ReLJbYLkSPBc1vEdn2mvHV_elXiF1sx8%3D",
+    "value": "V4%24.airbnb.com%24J9dZlEcE6ZM%24Ckio3dohdESr-kEhsZiCjOaZdrwdP4UGWr1YuOxzOqA%3D",
     "id": 2
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1618246714,
+    "expirationDate": 1618562792,
     "hostOnly": False,
     "httpOnly": False,
     "name": "_ga",
@@ -71,12 +70,12 @@ cookies = [
     "secure": False,
     "session": False,
     "storeId": "0",
-    "value": "GA1.2.2042897767.1555174382",
+    "value": "GA1.2.322154298.1555490777",
     "id": 3
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1555174774,
+    "expirationDate": 1555490836,
     "hostOnly": False,
     "httpOnly": False,
     "name": "_gat",
@@ -90,7 +89,7 @@ cookies = [
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1562950381,
+    "expirationDate": 1563266774,
     "hostOnly": False,
     "httpOnly": False,
     "name": "_gcl_au",
@@ -99,12 +98,12 @@ cookies = [
     "secure": False,
     "session": False,
     "storeId": "0",
-    "value": "1.1.1471033366.1555174381",
+    "value": "1.1.1233365001.1555490774",
     "id": 5
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1555261114,
+    "expirationDate": 1555577192,
     "hostOnly": False,
     "httpOnly": False,
     "name": "_gid",
@@ -113,12 +112,12 @@ cookies = [
     "secure": False,
     "session": False,
     "storeId": "0",
-    "value": "GA1.2.838039549.1555174382",
+    "value": "GA1.2.1828193638.1555490777",
     "id": 6
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1618333113,
+    "expirationDate": 1618649177.259369,
     "hostOnly": False,
     "httpOnly": False,
     "name": "_user_attributes",
@@ -127,12 +126,12 @@ cookies = [
     "secure": True,
     "session": False,
     "storeId": "0",
-    "value": "%7B%22curr%22%3A%22USD%22%2C%22guest_exchange%22%3A1.0%2C%22device_profiling_session_id%22%3A%221555174379--9af51d589380c4e2b8066e7a%22%2C%22giftcard_profiling_session_id%22%3A%221555174379--3c00b0562d1ec1981acab8d6%22%2C%22reservation_profiling_session_id%22%3A%221555174379--f1249795de7b4539f3da94b7%22%7D",
+    "value": "%7B%22curr%22%3A%22CAD%22%2C%22guest_exchange%22%3A1.337225%2C%22device_profiling_session_id%22%3A%221555490777--62730dd53471f17858310067%22%2C%22giftcard_profiling_session_id%22%3A%221555490777--daae8eb961df41d13b414ea9%22%2C%22reservation_profiling_session_id%22%3A%221555490777--a0ae78119a71028c286ea5ab%22%7D",
     "id": 7
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1555177981,
+    "expirationDate": 1555494376,
     "hostOnly": False,
     "httpOnly": False,
     "name": "AMP_TOKEN",
@@ -146,7 +145,7 @@ cookies = [
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1618246717,
+    "expirationDate": 1618562797.561908,
     "hostOnly": False,
     "httpOnly": False,
     "name": "bev",
@@ -155,7 +154,7 @@ cookies = [
     "secure": True,
     "session": False,
     "storeId": "0",
-    "value": "1555174379_gA4mWevErqte%2FU9h",
+    "value": "1555490773_QY9Bs5aYI0qCQZhS",
     "id": 9
 },
 {
@@ -173,7 +172,7 @@ cookies = [
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1641488314,
+    "expirationDate": 1641804393,
     "hostOnly": False,
     "httpOnly": False,
     "name": "cbkp",
@@ -187,7 +186,7 @@ cookies = [
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1560358379,
+    "expirationDate": 1560674791.158182,
     "hostOnly": False,
     "httpOnly": False,
     "name": "cdn_exp_c93eb6109a0d84ec9",
@@ -196,21 +195,21 @@ cookies = [
     "secure": False,
     "session": False,
     "storeId": "0",
-    "value": "hyperloop",
+    "value": "control",
     "id": 12
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1586797151,
+    "expirationDate": 1560674791.158049,
     "hostOnly": False,
     "httpOnly": False,
-    "name": "currency",
+    "name": "cdn_exp_ea80bc3c056098b3b",
     "path": "/",
     "sameSite": "no_restriction",
     "secure": False,
     "session": False,
     "storeId": "0",
-    "value": "USD",
+    "value": "treatment",
     "id": 13
 },
 {
@@ -228,7 +227,7 @@ cookies = [
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1555260780,
+    "expirationDate": 1555577176.854079,
     "hostOnly": False,
     "httpOnly": False,
     "name": "jitney_client_session_created_at",
@@ -237,12 +236,12 @@ cookies = [
     "secure": True,
     "session": False,
     "storeId": "0",
-    "value": "1555174380",
+    "value": "1555490776",
     "id": 15
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1555260780,
+    "expirationDate": 1555577176.853941,
     "hostOnly": False,
     "httpOnly": False,
     "name": "jitney_client_session_id",
@@ -251,12 +250,12 @@ cookies = [
     "secure": True,
     "session": False,
     "storeId": "0",
-    "value": "0441fc43-9af3-40d4-8f53-a687ffc54da2",
+    "value": "eef5337d-7810-49c9-b68e-61f4e3a5d294",
     "id": 16
 },
 {
     "domain": ".airbnb.com",
-    "expirationDate": 1555261117,
+    "expirationDate": 1555577197.562035,
     "hostOnly": False,
     "httpOnly": False,
     "name": "jitney_client_session_updated_at",
@@ -265,7 +264,7 @@ cookies = [
     "secure": True,
     "session": False,
     "storeId": "0",
-    "value": "1555174716",
+    "value": "1555490797",
     "id": 17
 },
 {
