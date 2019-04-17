@@ -11,7 +11,7 @@ from Cookies import url_other_properties
 
 spyder = Airbnb_spyder(url_other_properties)
 
-payload = {'price_min':10,'price_max':11}
+payload = {'price_min':10,'price_max':11,'adults':2}
 
 r = spyder.get_r(spyder.url,payload)          
 data = r.json()
