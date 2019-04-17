@@ -26,7 +26,9 @@ headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) \
            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}        
 
 
-cookies = [
+cookies = []
+
+cookies2 = [
 {
     "domain": ".airbnb.com",
     "expirationDate": 1681737949,
