@@ -22,9 +22,8 @@ https://www.airbnb.ru/api/v2/homes_pdp_reviews?currency=USD&key=d306zoyjsyarp7if
 
 """
 
-headers = {'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N)\
-           AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 \
-           Mobile Safari/537.36'}        
+headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) \
+           AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}        
 
 
 cookies = [
