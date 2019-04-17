@@ -25,6 +25,7 @@ def collect_db(url,price_ranges = None):
     number_t = 0
     
     for price in price_ranges:
+        number_t = 0
         number = 0
         ofs = 0
         last_page_flag = True
@@ -32,25 +33,25 @@ def collect_db(url,price_ranges = None):
         while last_page_flag:        
 
             payload = {'price_min':price[0],'price_max':price[1],'items_offset':ofs}            
-            data = my_spyder.getJson(payload)            
-            number = my_spyder.getNumberProp(data)            
-            print('Parsing pages for prices from ' + str(price[0]) + ' until ' + str(price[1]))
-            print('Getting info for ' + str(number) + ' properties.')
-            
-            hist[str(number)] = (price[0],price[1])
-            
-            property_list.extend(my_spyder.parsePage(data))
-                            
+            data = my_spyder.getJson(payload)
+            processed_data = my_spyder.parsePage(data)
+            property_list.extend(processed_data[0])
+            number = processed_data[1]            
+            print('URL requested for prices from ' + str(price[0]) + ' until ' + str(price[1]))
+            print('Got info for ' + str(number) + ' properties.')             
             ofs +=50
-            last_page_flag = data['explore_tabs'][0]['pagination_metadata']['has_next_page']
-    
-        number_t += number
-    
-    
+            last_page_flag = data['explore_tabs'][0]['pagination_metadata']['has_next_page']    
+            number_t += number
+
+        hist[str(number_t)] = (price[0],price[1])
+        
     my_spyder.save_data(property_list,'excel','properties_Bali_', 'Data')
     my_spyder.save_data(property_list,'csv','properties_Bali_','Data')
     print (hist)
-    print('total number of properties -->'+str(number_t))
+    total = 0
+    for i in hist.keys():
+        total += int(i)
+    print('total number of properties -->'+str(total))
     
     return property_list
 
@@ -81,7 +82,7 @@ def makeCalendarAvail():
 ## info about other private properties (except villas)
 url = url_other_properties
 #price_ranges = collectNumberProp(url)
-price_ranges = [(15,19,262)]
+price_ranges = [(15,16,262)]
 
 db = collect_db(url,price_ranges)
     

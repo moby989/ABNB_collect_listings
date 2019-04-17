@@ -38,7 +38,7 @@ class Airbnb_spyder(Spyder):
         retries requests if the previous attempt was unsuccessful
         
         """
-        r = self.get_r(self.url,payload)
+        r = self.get_r(self.url,payload)            
         data = r.json()
         print ('retry N '+str(retry_count))
         if isinstance(data,type(None)):
@@ -138,9 +138,10 @@ class Airbnb_spyder(Spyder):
         
         """
         property_list = []
-        data_s = self.parserHelper(data,'explore_tabs',0,'sections',1,'listings')
+        data_s = self.parserHelper(data,'explore_tabs',0,'sections',0,'listings')
+            
         if isinstance(data_s,type(None)):
-            pass
+            numb_prop = 0
         else:            
             for i in range(len(data_s)):
                 
@@ -173,9 +174,10 @@ class Airbnb_spyder(Spyder):
                 property['property type'] = self.parserHelper(data_s,i,'listing','space_type')
                 property['extra info'] = ''            
     
-                property_list.append(property)                
+                property_list.append(property)  
+                numb_prop = len(data_s)
 
-        return property_list
+        return property_list,numb_prop
         
     def parsePageProperty(self,data):
         

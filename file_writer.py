@@ -56,19 +56,23 @@ class FileWriter(object):
                                                                             
             file_to_create_name = '{name}{today}.xlsx'.format(name=file_name,today=self.today)
             
-            save_path = os.path.join(os.getcwd(),folder_name)
+#            save_path = os.path.join(os.getcwd(),folder_name)
 
-            complete_name = os.path.join(save_path, file_to_create_name)
+            complete_name = file_to_create_name
+#            os.path.join(save_path, file_to_create_name)
 
-            #wb.save(complete_name)
+            wb.save(complete_name)
+            self.file_uploadGDrive_token(complete_name)                            
                     
         else:
 
             file_to_create_name = '{name}{today}.csv'.format(name = file_name,today = self.today)
 
 #            save_path = os.path.join(os.getcwd(),folder_name)
- #           complete_name = os.path.join(save_path, file_to_create_name)
             complete_name = file_to_create_name
+            
+#            os.path.join(save_path, file_to_create_name)
+
             with open(complete_name, mode='w') as csv_file:
 
                 fieldnames = self.data[0].keys()
@@ -78,7 +82,7 @@ class FileWriter(object):
 
             self.file_uploadGDrive_token(complete_name)                            
         
-        print ('File -> '+str(file_to_create_name)+' is saved in '+str(complete_name)+' folder')
+        print ('File -> '+str(file_to_create_name)+' is saved')
         
         return file_to_create_name
     
@@ -91,16 +95,15 @@ class FileWriter(object):
         # MediaFileUpload abstracts uploading file contents from a file on disk.
         media_body = googleapiclient.http.MediaFileUpload(
             file_name,
-            mimetype='text/csv',
             resumable=True)
         # The body contains the metadata for the file.
         body = {
-          'name': 'scraped_info',
-          'description': 'db with details about properties'}
+          'name': file_name,
+          'description': 'scraped data'}
         
         # Perform the request and print the result.
-        new_file = drive.files().create(body=body, media_body=media_body).execute()
-        pprint.pprint(new_file)
+        drive.files().create(body=body, media_body=media_body).execute()
+#        pprint.pprint(new_file)
                 
     def upload_file_to_GoogleDrive_Oath(self, file_name, folder_name):
 
