@@ -56,19 +56,19 @@ class FileWriter(object):
                                                                             
             file_to_create_name = '{name}{today}.xlsx'.format(name=file_name,today=self.today)
             
-            save_path = os.path.join(os.getcwd(),folder_name)
+           # save_path = os.path.join(os.getcwd(),folder_name)
 
-            complete_name = os.path.join(save_path, file_to_create_name)
+            #complete_name = os.path.join(save_path, file_to_create_name)
 
-            wb.save(complete_name)
+            #wb.save(complete_name)
                     
         else:
 
             file_to_create_name = '{name}{today}.csv'.format(name = file_name,today = self.today)
 
-            save_path = os.path.join(os.getcwd(),folder_name)
-            complete_name = os.path.join(save_path, file_to_create_name)
-
+#            save_path = os.path.join(os.getcwd(),folder_name)
+ #           complete_name = os.path.join(save_path, file_to_create_name)
+            complete_name = file_to_create_name
             with open(complete_name, mode='w') as csv_file:
 
                 fieldnames = self.data[0].keys()
