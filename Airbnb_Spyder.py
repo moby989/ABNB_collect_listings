@@ -139,6 +139,8 @@ class Airbnb_spyder(Spyder):
         """
         property_list = []
         data_s = self.parserHelper(data,'explore_tabs',0,'sections',0,'listings')
+        print (data_s)
+        print(len(data_s))
             
         if isinstance(data_s,type(None)):
             pass
