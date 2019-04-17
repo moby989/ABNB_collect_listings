@@ -13,7 +13,7 @@ import requests
 from datetime import datetime,timedelta
 import random
 import sys
-from Cookies import headers
+from Cookies import headers,cookies
 
 
 
@@ -117,7 +117,7 @@ class Spyder(object):
             print ('DELAY AFTER 20 REQUESTS')
             self.calls = 0
         
-        r = requests.get(url, cookies = self.cookies, headers = self.headers, params = payload)
+        r = requests.get(url, cookies = self.makeCookiesDict(cookies), headers = self.headers, params = payload)
         
         print('URL -> ' + str(r.url))
         self.calls +=1
