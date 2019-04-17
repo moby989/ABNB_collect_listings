@@ -39,8 +39,9 @@ class Airbnb_spyder(Spyder):
         
         """
         r = self.get_r(self.url,payload)
-        print(r.status_code)
+        print(r.content)
         data = r.json()
+        print (data)
         print ('retry N '+str(retry_count))
         if isinstance(data,type(None)):
             retry_count +=1 
