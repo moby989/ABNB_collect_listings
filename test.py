@@ -22,6 +22,7 @@ print (r.url)
 print (r.headers)
 property = data['explore_tabs'][0]['sections'][1]['listings'][0]['pricing_quote']
 print (property)
+print (data)
 
 
         
