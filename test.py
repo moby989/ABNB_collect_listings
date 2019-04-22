@@ -32,12 +32,14 @@ print (r.url)
 #print (dict(r.cookies))
 print (r.headers)
 property = data['explore_tabs'][0]['sections'][1]['listings'][0]['pricing_quote']
+property2 = data['explore_tabs'][0]['sections'][0]
 print (property)
 
 k = r.cookies
 
  
 print (dict(k))
-print (r2.content)
+#print (r2.content)
+print (property2)
 
         
