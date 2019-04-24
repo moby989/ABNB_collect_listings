@@ -49,6 +49,10 @@ print (property2)
 print (len(property3))
 print (property4)
 
+name  = spyder.makeTextFile(str(data))
+writer = FileWriter(name)
+writer.file_uploadGDrive_token(name)
+
 #k = r.cookies
 
  
