@@ -39,7 +39,7 @@ print (property)
 
 k = r.cookies
 
- 
+print(k) 
 print (dict(k))
 #print (r2.content)
 print (property2)
