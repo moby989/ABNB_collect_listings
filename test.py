@@ -29,11 +29,10 @@ spyder2 = Airbnb_spyder(url2)
 
 
 r2 = spyder2.get_r(spyder2.url)
-r2_text = str(spyder2.get_script2(r2))
+r2_text = str(r2.content)
 name  = spyder2.makeTextFile(r2_text)
 writer = FileWriter(name)
 writer.file_uploadGDrive_token(name)
-
 
 
 
