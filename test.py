@@ -43,9 +43,11 @@ print (r.headers)
 property = data['explore_tabs'][0]['sections'][0]
 property2 = data['explore_tabs'][0]['sections'][1]['listings'][0]['pricing_quote']
 property3 = data['explore_tabs'][0]['sections']
+property4 = data['explore_tabs'][0]['sections'][2]
 print (property)
 print (property2)
 print (len(property3))
+print (property4)
 
 #k = r.cookies
 
