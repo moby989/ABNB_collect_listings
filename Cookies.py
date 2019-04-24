@@ -22,10 +22,24 @@ https://www.airbnb.ru/api/v2/homes_pdp_reviews?currency=USD&key=d306zoyjsyarp7if
 
 """
 
-#headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) \
-#          AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'}
+headers = {
+'authority': 'www.airbnb.com',
+'method': 'GET',
+'scheme': 'https',
+'accept': 'application/json, text/javascript, */*; q=0.01',
+'accept-encoding': 'gzip, deflate, br',
+'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+'cache-control': 'no-cache',
+'pragma': 'no-cache',
+'referer': 'https://www.airbnb.com/s/Bali--Indonesia/homes?refinement_paths%5B%5D=%2Fhomes&place_id=ChIJoQ8Q6NNB0S0RkOYkS7EPkSQ&query=Bali%2C%20Indonesia&search_type=FILTER_CHANGE&allow_override%5B%5D=&s_tag=ReRM3Y7C',
+'save-data': 'on',
+'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36',
+'x-csrf-token': 'V4$.airbnb.com$V5KUmGhJ0AQ$yjbviXB2lQjGp5qffckUt_0dU4TTOiQrQ-ZL9OsFBCM=',
+'x-requested-with': 'XMLHttpRequest'}
+          
 
-headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0'}
+
+#headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:12.0) Gecko/20100101 Firefox/12.0'}
 
 cookies = [
 
