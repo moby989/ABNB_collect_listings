@@ -186,6 +186,20 @@ class Spyder(object):
             pass
         
         return dates
+    
+    def makeTextFile(self,data):
+        
+        """
+        HELPER FUNCTION
+        makes a text file from html content
+        """
+        
+        file_name = 'data_text.html'
+        with open(file_name, mode='w+') as html_file:
+
+            html_file.write(data)
+
+        return file_name
             
     def cont_flag_set(self):
        
