@@ -81,8 +81,8 @@ def makeCalendarAvail():
 
 ## info about other private properties (except villas)
 url = url_other_properties
-price_ranges = collectNumberProp(url)
-price_ranges = [(15,16,262)]
+#price_ranges = collectNumberProp(url)
+price_ranges = [(0, 17, 278), (18, 20, 204), (21, 24, 242), (25, 27, 241), (28, 31, 240), (32, 34, 146), (35, 38, 226), (39, 44, 283), (45, 51, 298), (52, 61, 289), (62, 74, 293), (75, 89, 248), (90, 109, 290), (110, 144, 290), (145, 193, 299), (194, 309, 299), (310, 2000, 248), (2001, 10000, 16)]
 
 db = collect_db(url,price_ranges)
     
