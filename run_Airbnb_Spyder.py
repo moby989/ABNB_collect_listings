@@ -99,24 +99,31 @@ Schedule:
 
 def scheduleRun(day,type):
               
-    if day == 6:
-        #collect price histogram
-        histogram = collectNumberProp(URLs[0])        
+#    if day == 6:
+#        #collect price histogram
+#        histogram = collectNumberProp(URLs[0])        
+#
+#    elif day == 7:
+#        file_name = my_spyder.fileDownloadGdrive('histogram')
+#        histogram = my_spyder.get_data_from_file(file_name)
+#        collect_db(my_spyder.url,type,histogram)
+#
+#    elif day in [1,2,3,4,5,6,7]:
+#        k = 1
+#        print (k)        
+#        #makeCalendarAvail()
 
-    elif day == 6:
-        file_name = my_spyder.fileDownloadGdrive('histogram')
-        histogram = my_spyder.get_data_from_file(file_name)
-        collect_db(my_spyder.url,type,histogram)
 
-    elif day in [1,2,3,4,5,6,7]:
-        k = 1
-        print (k)        
-        #makeCalendarAvail()
+    histogram = collectNumberProp(URLs[0])        
+    file_name = my_spyder.fileDownloadGdrive('histogram')
+    histogram = my_spyder.get_data_from_file(file_name)
+    collect_db(my_spyder.url,type,histogram)
+
 
     return None
 
 day = datetime.isoweekday(datetime.today())
-for url in URLs[:1]:
+for url in URLs:
     my_spyder = Airbnb_spyder(url['url'])
     scheduleRun(day,url['type'])
     
