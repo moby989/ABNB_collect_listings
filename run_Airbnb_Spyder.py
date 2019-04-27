@@ -4,56 +4,70 @@
 Created on Wed Mar 20 19:39:41 2019
 
 @author: moby
+
 """
 
 from Airbnb_Spyder import Airbnb_spyder
-from Cookies import url_villas,url_other_properties
+from URLs import URLs
+from datetime import datetime
+from file_writer import FileWriter
 
 def collectNumberProp(url):
     
-    my_spyder = Airbnb_spyder(url)
-    price_ranges = my_spyder.getPriceRangeWrapper()
-    print (price_ranges)
-    return price_ranges
+    histogram = my_spyder.getPriceRangeWrapper()
+    print (histogram)
+    #saving data
+    xl_file = my_spyder.save_data(histogram,'excel','histogram_', 'Airbnb_data')
+    my_spyder.file_uploadGDrive(xl_file)
+    csv_file = my_spyder.save_data(histogram,'csv','histogram_', 'Airbnb_data')
+    my_spyder.file_uploadGDrive(csv_file)
+        
+    return histogram
 
-def collect_db(url,price_ranges = None):
-
-    my_spyder = Airbnb_spyder(url)
+def collect_db(url,type,price_ranges = None):
     
     property_list = []
+    histogram = []
     hist = {}
-    number_t = 0
+    total = 0
     
     for price in price_ranges:
+        hist = {}
         number_t = 0
         number = 0
         ofs = 0
         last_page_flag = True
         
         while last_page_flag:        
-
-            payload = {'price_min':price[0],'price_max':price[1],'items_offset':ofs}            
+#            print (price['maximum_price'])
+            payload = {'price_min':price['minimum_price'],'price_max':price['maximum_price'],'items_offset':ofs}            
             data = my_spyder.getJson(payload)
             processed_data = my_spyder.parsePage(data)
             property_list.extend(processed_data[0])
             number = processed_data[1]            
-            print('URL requested for prices from ' + str(price[0]) + ' until ' + str(price[1]))
+            print('URL requested for prices from ' + str(price['minimum_price']) + ' until ' + str(price['maximum_price']))
             print('Got info for ' + str(number) + ' properties.')             
             ofs +=50
             last_page_flag = data['explore_tabs'][0]['pagination_metadata']['has_next_page']    
             number_t += number
+            total += number_t
 
-        hist[str(number_t)] = (price[0],price[1])
+        hist[number_t] = (price['minimum_price'],price['maximum_price'])
+        histogram.append(hist)
+   
         
-    my_spyder.save_data(property_list,'excel','properties_Bali_', 'Data')
-    my_spyder.save_data(property_list,'csv','properties_Bali_','Data')
-    print (hist)
-    total = 0
-    for i in hist.keys():
-        total += int(i)
+    xl_file = my_spyder.save_data(property_list,'excel', '{type}_'.format(type = type), 'Airbnb_data')
+    my_spyder.file_uploadGDrive(xl_file)
+    csv_file = my_spyder.save_data(property_list,'csv','{type}_'.format(type = type),'Airbnb_data')
+    my_spyder.file_uploadGDrive(csv_file)
+            
+    print (histogram)
     print('total number of properties -->'+str(total))
-    
-    return property_list
+    txt_file = my_spyder.createTextFile ((histogram,str('total number of properties -->')+str(total)),'Parsed properties.txt')        
+    my_spyder.file_uploadGDrive(txt_file)
+
+
+    return None
 
 def makeCalendarAvail():
     
@@ -74,16 +88,42 @@ def makeCalendarAvail():
         
     return db
 
-        
-#makeCalendarAvail()
-#my_spyder = Airbnb_spyder(url)
-#print(my_spyder.cookies)
-
-## info about other private properties (except villas)
-url = url_other_properties
-#price_ranges = collectNumberProp(url)
-price_ranges = [(0, 17, 278), (18, 20, 204), (21, 24, 242), (25, 27, 241), (28, 31, 240), (32, 34, 146), (35, 38, 226), (39, 44, 283), (45, 51, 298), (52, 61, 289), (62, 74, 293), (75, 89, 248), (90, 109, 290), (110, 144, 290), (145, 193, 299), (194, 309, 299), (310, 2000, 248), (2001, 10000, 16)]
-
-db = collect_db(url,price_ranges)
     
+"""
+Schedule:
     
+1) collect price_ranges - weekly
+2) collect db - weekly
+3) collect calendar - daily
+
+"""
+
+def scheduleRun(day,type):
+              
+    if day == 1:
+        #collect price histogram
+        histogram = collectNumberProp(URLs[0])        
+#        histogram = my_spyder.get_data_from_file('histogram')                
+        #makeCalendarAvail()
+
+    elif day == 6:
+#        data = {'p':'1'}
+#        writer = FileWriter(data)
+        file_name = my_spyder.fileDownloadGdrive('histogram')
+        histogram = my_spyder.get_data_from_file(file_name)
+        collect_db(my_spyder.url,type,histogram)
+
+    elif day in [1,2,3,4,5,6,7]:
+        k = 1
+        print (k)        
+        #makeCalendarAvail()
+
+    return None
+
+day = datetime.isoweekday(datetime.today())
+print (day)
+for url in URLs[:1]:
+    my_spyder = Airbnb_spyder(url['url'])
+    scheduleRun(day,url['type'])
+    
+

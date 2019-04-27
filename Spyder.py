@@ -5,6 +5,7 @@ Created on Fri Feb  1 17:11:41 2019
 
 @author: moby
 """
+from __future__ import print_function
 from bs4 import BeautifulSoup
 from file_writer import FileWriter
 import time
@@ -14,6 +15,17 @@ from datetime import datetime,timedelta
 import random
 import sys
 from Cookies import headers,cookies
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+import googleapiclient.http
+#import pprint
+#import httplib2
+import io
+from googleapiclient.http import MediaIoBaseDownload
+
 
 
 
@@ -74,7 +86,7 @@ class Spyder(object):
     def save_data(self,data,format,file_name,folder_name = None):
              
         """
-        saves data array into EXCEL/CSV file
+        saves a data array into EXCEL/CSV file
         
         date is a list of dict where dict keys are the names of columns in the output file
         
@@ -86,7 +98,18 @@ class Spyder(object):
         
 #        writer.upload_file_to_GoogleDrive(create_file_name,folder_name)
             
-        return create_file_name        
+        return create_file_name    
+
+    def createTextFile (self,data,name):
+        
+        """
+        creates a text file with some supplemental info for parsing
+        
+        """        
+        with open(name, mode='w') as f:
+            for item in data:
+                f.write(str(item))            
+        return name
         
     def get_data_from_file(self,file_name):        
         
@@ -201,6 +224,104 @@ class Spyder(object):
 
         return file_name
             
+    def access_gDrive(self):
+        """Shows basic usage of the Drive v3 API.
+        Prints the names and ids of the first 10 files the user has access to.
+        """
+        creds = None
+        # The file token.pickle stores the user's access and refresh tokens, and is
+        # created automatically when the authorization flow completes for the first
+        # time.
+        if os.path.exists('token.pickle'):
+            with open('token.pickle', 'rb') as token:
+                creds = pickle.load(token)
+#                http = httplib2.Http()
+        # If there are no (valid) credentials available, let the user log in.
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', self.scopes)
+                creds = flow.run_local_server()    
+            # Save the credentials for the next run
+            with open('token.pickle', 'wb') as token:
+                pickle.dump(creds, token)
+       #authenticated GoogleDrive object
+        drive = build('drive', 'v3', credentials = creds)
+        
+        return drive
+    
+    def file_uploadGDrive(self, file_name, folder_name = None):
+
+        """
+        upload a file to the authhenicated GoogleDrive
+        
+        """
+        
+        #authentication        
+        drive = self.access_gDrive()
+        
+        # Insert a file. Files are comprised of contents and metadata.
+        # MediaFileUpload abstracts uploading file contents from a file on disk.
+        media_body = googleapiclient.http.MediaFileUpload(
+            file_name,
+            resumable=False)
+        # The body contains the metadata for the file.
+        body = {
+          'name': file_name,
+          'description': 'scraped data'}
+        
+        # Perform the request and print the result.
+        drive.files().create(body=body, media_body=media_body).execute()
+#        pprint.pprint(new_file)
+        
+    def fileDownloadGdrive(self,name):
+        
+        """
+        download a file from the authhenicated GoogleDrive
+        
+        """
+             
+        mod_date = []
+#        print(name)
+        
+        #authentication        
+        drive = self.access_gDrive()
+
+        #search file name and getting list of files containing such name        
+        file_list = drive.files().list(q = "name contains '{name}'".format(name = name)).execute()
+#        print (file_list['files'])
+        #finding the latest file
+        for file in file_list['files']:        
+            metadata = drive.files().get(fileId = file['id'], fields = 'modifiedTime,id').execute()
+            mod_date.append(metadata['modifiedTime'])
+       
+#        print (mod_date)
+        file_id_latest = mod_date.index(max(mod_date)) #index of the latest file
+        file_id = file_list['files'][file_id_latest]['id'] #id of the latest file
+        file_name = file_list['files'][file_id_latest]['name']
+#        print (file_id)
+
+        #downloading the file
+        
+#        print (file_list['files'][file_id_latest]['name'])
+        request = drive.files().get_media(fileId=file_id)
+#        request2 = drive.files().get_media(fileId=file_id).execute()
+#        print(request)
+        fh = io.FileIO(file_name,'wb') #file name
+        downloader = MediaIoBaseDownload(fh, request) #downloading
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print ("Download %d%%." % int(status.progress() * 100))            
+               
+        return file_name
+        
+            
+    
+    
+
     def cont_flag_set(self):
        
         """

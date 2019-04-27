@@ -17,8 +17,10 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import googleapiclient.http
-import pprint
-import httplib2
+#import pprint
+#import httplib2
+import io
+from googleapiclient.http import MediaIoBaseDownload
 
 class FileWriter(object):
 
@@ -62,51 +64,36 @@ class FileWriter(object):
 #            os.path.join(save_path, file_to_create_name)
 
             wb.save(complete_name)
-            self.file_uploadGDrive_token(complete_name)                            
+#            self.file_uploadGDrive_token(complete_name)                            
                     
         else:
 
             file_to_create_name = '{name}{today}.csv'.format(name = file_name,today = self.today)
 
 #            save_path = os.path.join(os.getcwd(),folder_name)
-            complete_name = file_to_create_name
-            
-#            os.path.join(save_path, file_to_create_name)
+#            complete_name = os.path.join(save_path, file_to_create_name)
 
-            with open(complete_name, mode='w') as csv_file:
+            with open(file_to_create_name, mode='w') as csv_file:
 
                 fieldnames = self.data[0].keys()
                 writer = csv.DictWriter(csv_file, fieldnames = fieldnames)
                 writer.writeheader()
                 writer.writerows(self.data)
-
-            self.file_uploadGDrive_token(complete_name)                            
+        
+#        self.file_uploadGDrive_token(file_to_create_name)                            
         
         print ('File -> '+str(file_to_create_name)+' is saved')
         
         return file_to_create_name
-    
-    def file_uploadGDrive_token(self, file_name, folder_name = None):
-
-        #authentication        
-        drive = self.access_gDrive()
-        
-        # Insert a file. Files are comprised of contents and metadata.
-        # MediaFileUpload abstracts uploading file contents from a file on disk.
-        media_body = googleapiclient.http.MediaFileUpload(
-            file_name,
-            resumable=True)
-        # The body contains the metadata for the file.
-        body = {
-          'name': file_name,
-          'description': 'scraped data'}
-        
-        # Perform the request and print the result.
-        drive.files().create(body=body, media_body=media_body).execute()
-#        pprint.pprint(new_file)
+            
                 
     def upload_file_to_GoogleDrive_Oath(self, file_name, folder_name):
 
+        """
+        DEPRECIATED
+
+        """
+        
         id = '1mnTwirEO0jUXGoZgiD9AkUc5LfGaxrWZ' #ID of folder 'Scraped_data'     
     
 #        drive = self.access_gDrive()
@@ -153,37 +140,4 @@ class FileWriter(object):
             file_drive.Upload()
             print ("The file: " + file_name + " has been uploaded to GoogleDrive into the folder " +str(folder_name))    
             
-    def access_gDrive(self):
-        """Shows basic usage of the Drive v3 API.
-        Prints the names and ids of the first 10 files the user has access to.
-        """
-        creds = None
-        # The file token.pickle stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
-        if os.path.exists('token.pickle'):
-            with open('token.pickle', 'rb') as token:
-                creds = pickle.load(token)
-#                http = httplib2.Http()
-        # If there are no (valid) credentials available, let the user log in.
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', self.scopes)
-                creds = flow.run_local_server()    
-            # Save the credentials for the next run
-            with open('token.pickle', 'wb') as token:
-                pickle.dump(creds, token)
-       #authenticated GoogleDrive object
-        drive = build('drive', 'v3', credentials = creds)
-        
-        return drive
     
-        
-#data = [{'k':1},{'k':2}]
-#file = FileWriter(data)
-#file.output_file('excel','test','Data')
-
-#file.file_uploadGDrive_token('price_avail_check_Seminyak_2019-03-16.csv','test_folder')
