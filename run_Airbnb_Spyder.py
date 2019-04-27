@@ -10,7 +10,6 @@ Created on Wed Mar 20 19:39:41 2019
 from Airbnb_Spyder import Airbnb_spyder
 from URLs import URLs
 from datetime import datetime
-from file_writer import FileWriter
 
 def collectNumberProp(url):
     
@@ -100,15 +99,11 @@ Schedule:
 
 def scheduleRun(day,type):
               
-    if day == 1:
+    if day == 6:
         #collect price histogram
         histogram = collectNumberProp(URLs[0])        
-#        histogram = my_spyder.get_data_from_file('histogram')                
-        #makeCalendarAvail()
 
     elif day == 6:
-#        data = {'p':'1'}
-#        writer = FileWriter(data)
         file_name = my_spyder.fileDownloadGdrive('histogram')
         histogram = my_spyder.get_data_from_file(file_name)
         collect_db(my_spyder.url,type,histogram)
@@ -121,7 +116,6 @@ def scheduleRun(day,type):
     return None
 
 day = datetime.isoweekday(datetime.today())
-print (day)
 for url in URLs[:1]:
     my_spyder = Airbnb_spyder(url['url'])
     scheduleRun(day,url['type'])

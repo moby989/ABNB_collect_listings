@@ -11,16 +11,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from datetime import date
 import csv
-import pickle
-import os.path
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-import googleapiclient.http
-#import pprint
-#import httplib2
-import io
-from googleapiclient.http import MediaIoBaseDownload
+
 
 class FileWriter(object):
 

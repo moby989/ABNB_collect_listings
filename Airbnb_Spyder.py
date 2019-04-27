@@ -7,7 +7,7 @@ Created on Wed Mar 20 15:29:38 2019
 """
 
 from Spyder import Spyder
-from Cookies import cookies
+#from Cookies import cookies
 import math
 
 
