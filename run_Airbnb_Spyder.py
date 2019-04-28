@@ -123,7 +123,7 @@ def scheduleRun(day,type):
     return None
 
 day = datetime.isoweekday(datetime.today())
-for url in URLs:
+for url in URLs[1:]:
     my_spyder = Airbnb_spyder(url['url'])
     scheduleRun(day,url['type'])
     
