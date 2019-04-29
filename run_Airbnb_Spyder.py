@@ -49,7 +49,8 @@ def collect_db(url,type,price_ranges = None):
             ofs +=50
             last_page_flag = my_spyder.parserHelper(data,'explore_tabs',0,'pagination_metadata','has_next_page')   
             number_t += number
-            total += number_t
+        
+        total += number_t
 
         hist[number_t] = (price['minimum_price'],price['maximum_price'])
         histogram.append(hist)
@@ -99,7 +100,8 @@ Schedule:
 сделать загрузки в папки по дням
 Добавить все прочие объекты
 Сделать загрузку файла ошибок и добавление новых данных
-    
+client session id убрать из запросов
+
 """
 
 def scheduleRun(day,type):
