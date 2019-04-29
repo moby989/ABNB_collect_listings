@@ -47,7 +47,7 @@ def collect_db(url,type,price_ranges = None):
             print('URL requested for prices from ' + str(price['minimum_price']) + ' until ' + str(price['maximum_price']))
             print('Got info for ' + str(number) + ' properties.')             
             ofs +=50
-            last_page_flag = data['explore_tabs'][0]['pagination_metadata']['has_next_page']    
+            last_page_flag = my_spyder.parserHelper(data,'explore_tabs',0,'pagination_metadata','has_next_page')   
             number_t += number
             total += number_t
 
@@ -64,7 +64,6 @@ def collect_db(url,type,price_ranges = None):
     print('total number of properties -->'+str(total))
     txt_file = my_spyder.createTextFile ((histogram,str('total number of properties -->')+str(total)),'Parsed properties.txt')        
     my_spyder.file_uploadGDrive(txt_file)
-
 
     return None
 
@@ -95,6 +94,12 @@ Schedule:
 2) collect db - weekly
 3) collect calendar - daily
 
+Сделать имя в файле гистограмму     
+Счетчик объектов неправильно работает
+сделать загрузки в папки по дням
+Добавить все прочие объекты
+Сделать загрузку файла ошибок и добавление новых данных
+    
 """
 
 def scheduleRun(day,type):
@@ -119,12 +124,14 @@ def scheduleRun(day,type):
     histogram = my_spyder.get_data_from_file(file_name)
     collect_db(my_spyder.url,type,histogram)
 
-
     return None
 
 day = datetime.isoweekday(datetime.today())
-for url in URLs[1:]:
+for url in URLs[2:]:
+
     my_spyder = Airbnb_spyder(url['url'])
     scheduleRun(day,url['type'])
     
-
+#my_spyder = Airbnb_spyder('http://booking.com')
+#URLs = [my_spyder.url,1]
+#scheduleRun(1,'villas')

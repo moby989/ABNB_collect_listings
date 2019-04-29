@@ -40,12 +40,12 @@ class FileWriter(object):
             ws = wb.active
             fieldnames = list(self.data[0].keys())
             
-            for i in range (1,len(self.data)+2): #iterating via rows
+            for i in range (1,len(self.data[1:])+2): #iterating via rows
                 for j in range (1,len(fieldnames)+1):  #iteration via coloumns
                     if i == 1:
                         ws.cell(row=i, column=j).value = fieldnames[j-1]
                     else:
-                        ws.cell(row=i, column=j).value = self.data[i-2].get(fieldnames[j-1])       
+                        ws.cell(row=i, column=j).value = self.data[1:][i-2].get(fieldnames[j-1])       
                                                                             
             file_to_create_name = '{name}{today}.xlsx'.format(name=file_name,today=self.today)
             
@@ -69,7 +69,7 @@ class FileWriter(object):
                 fieldnames = self.data[0].keys()
                 writer = csv.DictWriter(csv_file, fieldnames = fieldnames)
                 writer.writeheader()
-                writer.writerows(self.data)
+                writer.writerows(self.data[1:])
         
 #        self.file_uploadGDrive_token(file_to_create_name)                            
         

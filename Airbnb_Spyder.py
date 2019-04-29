@@ -7,7 +7,7 @@ Created on Wed Mar 20 15:29:38 2019
 """
 
 from Spyder import Spyder
-#from Cookies import cookies
+from json import JSONDecodeError
 import math
 
 
@@ -16,9 +16,7 @@ class Airbnb_spyder(Spyder):
     def __init__(self,url):
         
         Spyder.__init__(self)
-        self.url = url
-#        self.cookies = self.makeCookiesDict(cookies)
-                      
+        self.url = url                     
         
     def getNumberProp(self,data):
         
@@ -39,17 +37,23 @@ class Airbnb_spyder(Spyder):
         
         """
         r = self.get_r(self.url,payload)          
-        data = r.json()
-        print (r.url)
-#        print (r.headers)
+        try:        
+            data = r.json()
+        except (JSONDecodeError,AttributeError):
+            error_message = 'There was an error getting JSON object from URL {url} and {payload}'.format(url = self.url,payload = payload)
+            text_file = self.createTextFile (error_message,'errors.txt')
+            self.file_uploadGDrive(text_file)
+            data = None
+            
         print ('retry N '+str(retry_count))
+
         if isinstance(data,type(None)):
             retry_count +=1 
-            if retry_count >5:
+            if retry_count >4:
                 print("can't make the request to API")
-                pass
+                return data
             else:
-                self.getJson(self,payload,retry_count)
+                self.getJson(payload,retry_count)
         else:
             return data
                 
@@ -65,8 +69,12 @@ class Airbnb_spyder(Spyder):
         payload = {'price_min':min,'price_max':max}
         
         data = self.getJson(payload)
+        
         number = self.getNumberProp(data)        
-
+        
+        if isinstance(number,type(None)):
+            return min,max,0
+        
         if max_p == None:                                    
             delta = int((max-min)//2)
             if number  <= 300:
@@ -98,7 +106,7 @@ class Airbnb_spyder(Spyder):
         """
         
         price_ranges = {}
-        histogram = []
+        histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
         min = 0
         max = 2000
             
@@ -141,7 +149,7 @@ class Airbnb_spyder(Spyder):
 
             return value if len(args) == 1 else self.parserHelper(value, *args[1:])
         else:
-            return 'no data'
+            return None
 
     def parsePage(self,data):
         
@@ -150,11 +158,20 @@ class Airbnb_spyder(Spyder):
         of properties with relevant info on them
         
         """
-        property_list = []
+        property_list = [{'id':0,'name':0,'dprice':0,'currency':0,'nreviews':0,\
+        'area':0,'subdistrict':0,'llcord':0,'nbedrooms':0,'max_guests':0,'url':0,\
+        'instant_booking':0,'monthly_price_f':0,'weekly_price_f':0,'is_superhost':0,\
+        'picture_count':0,'host_lang':0,'host_picture':0,'review_score':0,\
+        'picture_colour':0,'privacy_type':0,'property type':0,'extra info':0}]
+    
         data_s = self.parserHelper(data,'explore_tabs',0,'sections',0,'listings')
             
-        if isinstance(data_s,type(None)):
+        if isinstance(data_s,type(None)): #returns empty list if the server response was empty
             numb_prop = 0
+            error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)
+            text_file = self.createTextFile (error_message,'errors.txt')
+            self.file_uploadGDrive(text_file)            
+            
         else:            
             for i in range(len(data_s)):
                 

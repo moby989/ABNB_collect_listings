@@ -25,7 +25,8 @@ import googleapiclient.http
 #import httplib2
 import io
 from googleapiclient.http import MediaIoBaseDownload
-
+from requests.exceptions import Timeout
+from requests.exceptions import ConnectionError
 
 
 
@@ -140,9 +141,17 @@ class Spyder(object):
             print ('DELAY AFTER 20 REQUESTS')
             self.calls = 0
         
-        r = requests.get(url, cookies = self.makeCookiesDict(cookies), headers = self.headers, params = payload)
+        try:        
+            r = requests.get(url, cookies = self.makeCookiesDict(cookies), headers = self.headers, params = payload,timeout = 10)
+            print('URL -> ' + str(r.url))    
+
+        except ConnectionError or Timeout:
+            print ('Max retries or Timeout exceeded for URL {url}'.format(url = url))
+            error_message = 'Max retries or Timeout exceeded for URL {url}'.format(url = url)
+            text_file = self.createTextFile (error_message,'errors.txt')
+            self.file_uploadGDrive(text_file)
+            r = None            
         
-        print('URL -> ' + str(r.url))
         self.calls +=1
         
         delay = random.randint(1,15)
