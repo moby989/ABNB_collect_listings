@@ -138,7 +138,7 @@ class Spyder(object):
                 
         if self.calls > 100:
             self.timer(200)
-            print ('DELAY AFTER 20 REQUESTS')
+            print ('DELAY AFTER 200 REQUESTS')
             self.calls = 0
         
         try:        
@@ -152,7 +152,7 @@ class Spyder(object):
             self.file_uploadGDrive(text_file)
             retry_count +=1
             print ('Retry # '+str(retry_count))
-            if retry_count > 3:
+            if retry_count > 2:
                 r = 1
             else:
                 r = self.get_r(url,payload,retry_count)                        
