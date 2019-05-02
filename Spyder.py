@@ -151,8 +151,9 @@ class Spyder(object):
             text_file = self.createTextFile (error_message,'errors.txt')
             self.file_uploadGDrive(text_file)
             retry_count +=1
-            if retry_count > 1:
-                print ('Retry # '+str(retry_count))
+            print ('Retry # '+str(retry_count))
+            if retry_count > 3:
+                r = 1
             else:
                 r = self.get_r(url,payload,retry_count)                        
                 
