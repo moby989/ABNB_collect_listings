@@ -29,7 +29,7 @@ class Airbnb_spyder(Spyder):
                         
         return number_prop
     
-    def getJson(self,payload,retry_count = 0):
+    def getJson(self,payload,retry_count = 1):
         
         """
         HELPER FUNCTION
@@ -45,11 +45,11 @@ class Airbnb_spyder(Spyder):
             self.file_uploadGDrive(text_file)
             data = None
             
-        print ('retry N '+str(retry_count))
+        print ('Retry getting JSON N '+str(retry_count))
 
         if isinstance(data,type(None)):
             retry_count +=1 
-            if retry_count >4:
+            if retry_count > 4:
                 print("can't make the request to API")
                 return data
             else:
