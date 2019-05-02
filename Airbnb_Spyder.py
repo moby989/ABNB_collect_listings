@@ -159,7 +159,7 @@ class Airbnb_spyder(Spyder):
         
         """
         property_list = [{'id':0,'name':0,'dprice':0,'currency':0,'nreviews':0,\
-        'area':0,'subdistrict':0,'llcord':0,'nbedrooms':0,'max_guests':0,'url':0,\
+        'area':0,'subdistrict':0,'lats':0,'lon':0,'nbedrooms':0,'max_guests':0,'url':0,\
         'instant_booking':0,'monthly_price_f':0,'weekly_price_f':0,'is_superhost':0,\
         'picture_count':0,'host_lang':0,'host_picture':0,'review_score':0,\
         'picture_colour':0,'privacy_type':0,'property type':0,'extra info':0}]
@@ -184,7 +184,8 @@ class Airbnb_spyder(Spyder):
                 property['nreviews'] = self.parserHelper(data_s,i,'listing','reviews_count')
                 property['area'] = self.parserHelper(data_s,i,'listing','city') 
                 property['subdistrict'] = self.parserHelper(data_s,i,'listing','public_address')
-                property['llcord'] = str(self.parserHelper(data_s,i,'listing','lat'))+','+str(self.parserHelper(data_s,i,'listing','lng'))
+                property['lats'] = str(self.parserHelper(data_s,i,'listing','lat'))
+                property['lon'] = str(self.parserHelper(data_s,i,'listing','lng'))
                 property['nbedrooms'] = self.parserHelper(data_s,i,'listing','bedrooms')
                 property['max_guests'] = self.parserHelper(data_s,i,'listing','person_capacity')
                 property['url'] = self.parserHelper(data_s,i,'listing','picture_url')
