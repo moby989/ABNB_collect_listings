@@ -122,7 +122,7 @@ def scheduleRun(day,type):
 #        #makeCalendarAvail()
 
 
-#    histogram = collectNumberProp(URLs[0])        
+    histogram = collectNumberProp(URLs[0])        
     file_name = my_spyder.fileDownloadGdrive('histogram')
     histogram = my_spyder.get_data_from_file(file_name)
     collect_db(my_spyder.url,type,histogram)
@@ -130,10 +130,10 @@ def scheduleRun(day,type):
     return None
 
 day = datetime.isoweekday(datetime.today())
-for url in URLs[:1]:
+for url in URLs:
 
-#    my_spyder = Airbnb_spyder(url['url'])
-    my_spyder = Airbnb_spyder('http://book22ing.com')
+    my_spyder = Airbnb_spyder(url['url'])
+#    my_spyder = Airbnb_spyder('http://book22ing.com')
     scheduleRun(day,url['type'])
     
 #my_spyder = Airbnb_spyder('http://booking.com')

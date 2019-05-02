@@ -155,6 +155,8 @@ class Spyder(object):
             if retry_count > 2:
                 r = 1
             else:
+                delay = random.randint(1,15)
+                self.timer(delay)
                 r = self.get_r(url,payload,retry_count)                        
                 
         self.calls +=1
