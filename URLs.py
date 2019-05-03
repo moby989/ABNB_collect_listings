@@ -24,6 +24,8 @@ URL_API_shared_properties = {'type':'SharedProperties', 'url': 'https://www.airb
 URL_API_reviews = 'https://www.airbnb.ru/api/v2/homes_pdp_reviews?currency=USD&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=ru&listing_id=5749962&_format=for_p3&limit=7&offset=14&order=language_country'
 
 
-URLs = [URL_API_villas,URL_API_other_properties,URL_API_shared_properties]
+URLs = [URL_API_shared_properties,URL_API_other_properties]
+
+#URL_API_villas,
 
 
