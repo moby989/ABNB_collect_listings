@@ -90,8 +90,12 @@ class Airbnb_spyder(Spyder):
             else:
                 return min,max,number                    
         else:
+            
             if number > 300:
-                min,max,number = self.getPriceRange(min,max-1,max)
+                if max <=min:
+                    return min,max,number
+                else:
+                    min,max,number = self.getPriceRange(min,max-1,max)
 
         print(min,max,number)
         return min,max,number

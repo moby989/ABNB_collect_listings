@@ -11,7 +11,7 @@ from Airbnb_Spyder import Airbnb_spyder
 from URLs import URLs
 from datetime import datetime
 
-def collectNumberProp(url):
+def collectNumberProp():
     
     histogram = my_spyder.getPriceRangeWrapper()
     print (histogram)
@@ -56,7 +56,7 @@ def collect_db(url,type,price_ranges = None):
         histogram.append(hist)
    
     property_list.insert(0,processed_data[0][0])
-    print (property_list[0])
+#    print (property_list[0])
     xl_file = my_spyder.save_data(property_list,'excel', '{type}_'.format(type = type), 'Airbnb_data')
     my_spyder.file_uploadGDrive(xl_file)
     csv_file = my_spyder.save_data(property_list,'csv','{type}_'.format(type = type),'Airbnb_data')
@@ -122,7 +122,7 @@ def scheduleRun(day,type):
 #        #makeCalendarAvail()
 
 
-    histogram = collectNumberProp(URLs[0])        
+    histogram = collectNumberProp()        
     file_name = my_spyder.fileDownloadGdrive('histogram')
     histogram = my_spyder.get_data_from_file(file_name)
     collect_db(my_spyder.url,type,histogram)
@@ -130,7 +130,7 @@ def scheduleRun(day,type):
     return None
 
 day = datetime.isoweekday(datetime.today())
-for url in URLs:
+for url in URLs[:1]:
 
     my_spyder = Airbnb_spyder(url['url'])
 #    my_spyder = Airbnb_spyder('http://book22ing.com')
@@ -139,3 +139,7 @@ for url in URLs:
 #my_spyder = Airbnb_spyder('http://booking.com')
 #URLs = [my_spyder.url,1]
 #scheduleRun(1,'villas')
+#url = {'type':'SharedProperties', 'url': 'https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web&_intents=p1&adults=2&allow_override%5B%5D=&auto_ib=false&children=0&client_session_id=e8e9034a-38af-4cdf-9f62-1e67ded128f6&currency=USD&display_currency=USD&experiences_per_grid=20&fetch_filters=true&guests=2&guidebooks_per_grid=20&has_zero_guest_treatment=true&infants=0&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid=50&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=en&luxury_pre_launch=false&metadata_only=false&place_id=ChIJoQ8Q6NNB0S0RkOYkS7EPkSQ&query=Bali%2C%20Indonesia&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes&room_types%5B%5D=Private%20room&room_types%5B%5D=Hotel%20room&room_types%5B%5D=Shared%20room&s_tag=XZGKw-7p&satori_version=1.1.0&screen_size=small&search_type=FILTER_CHANGE&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=480&toddlers=0&version=1.4.8'}    
+#my_spyder = Airbnb_spyder(url['url'])
+#histogram = [{'number of properties':0,'minimum_price':10,'maximum_price':10}]
+#collect_db(my_spyder.url,url['type'],histogram)
