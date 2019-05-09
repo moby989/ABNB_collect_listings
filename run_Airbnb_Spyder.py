@@ -69,24 +69,7 @@ def collect_db(url,type,price_ranges = None):
 
     return None
 
-def makeCalendarAvail():
-    
-    my_spyder = Airbnb_spyder()
-    
-    db = my_spyder.get_data_from_file('villas_Bali_2019-03-23.csv')
 
-    for property in db[0:3]:
-        print(property)
-        url = 'https://www.airbnb.ru/api/v2/calendar_months?_format=with_conditions&count=12&currency=USD&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&listing_id={property_id}&locale=en&month=4&year=2019'.format(property_id = property['id'])
-        r = my_spyder.get_r(url)
-        data = r.json()
-        calendar = my_spyder.parsePageProperty(data)
-        property.update(calendar)
-        
-    my_spyder.save_data(db,'excel','avail_',folder_name = None)
-    my_spyder.save_data(db,'csv','avial_',folder_name = None)
-        
-    return db
 
     
 """
@@ -130,16 +113,20 @@ def scheduleRun(day,type):
     return None
 
 day = datetime.isoweekday(datetime.today())
-for url in URLs[:1]:
-
-    my_spyder = Airbnb_spyder(url['url'])
+#for url in URLs[:1]:
+url = {'type':'all', 'url': 'https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web&_intents=p1&adults=2&allow_override%5B%5D=&auto_ib=false&checkin=2019-05-30&checkout=2019-06-02&children=0&client_session_id=047732fb-b5d8-42f6-89b7-00c6834a8791&currency=USD&experiences_per_grid=20&fetch_filters=true&guests=2&guidebooks_per_grid=20&has_zero_guest_treatment=true&ib=true&infants=1&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid=50&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=en&luxury_pre_launch=false&metadata_only=false&place_id=ChIJyY4rtGcX2jERIKTarqz3AAQ&query=Singapore&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes&room_types%5B%5D=Entire%20home%2Fapt&s_tag=YA02GPa5&satori_version=1.1.0&screen_height=721&screen_size=small&screen_width=611&search_type=FILTER_CHANGE&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=480&toddlers=0&version=1.4.8'}    
+my_spyder = Airbnb_spyder(url['url'])
 #    my_spyder = Airbnb_spyder('http://book22ing.com')
-    scheduleRun(day,url['type'])
+scheduleRun(day,url['type'])
     
 #my_spyder = Airbnb_spyder('http://booking.com')
 #URLs = [my_spyder.url,1]
 #scheduleRun(1,'villas')
-#url = {'type':'SharedProperties', 'url': 'https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web&_intents=p1&adults=2&allow_override%5B%5D=&auto_ib=false&children=0&client_session_id=e8e9034a-38af-4cdf-9f62-1e67ded128f6&currency=USD&display_currency=USD&experiences_per_grid=20&fetch_filters=true&guests=2&guidebooks_per_grid=20&has_zero_guest_treatment=true&infants=0&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid=50&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=en&luxury_pre_launch=false&metadata_only=false&place_id=ChIJoQ8Q6NNB0S0RkOYkS7EPkSQ&query=Bali%2C%20Indonesia&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes&room_types%5B%5D=Private%20room&room_types%5B%5D=Hotel%20room&room_types%5B%5D=Shared%20room&s_tag=XZGKw-7p&satori_version=1.1.0&screen_size=small&search_type=FILTER_CHANGE&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=480&toddlers=0&version=1.4.8'}    
+
 #my_spyder = Airbnb_spyder(url['url'])
+
+
+
 #histogram = [{'number of properties':0,'minimum_price':10,'maximum_price':10}]
 #collect_db(my_spyder.url,url['type'],histogram)
+#shared_prop_hist = [372,346,442,1184,1358,1959,2103,1929,1398,1095,919,820,614,543,582,611,406,356,329,259,255,144,149,80,111,82,82,97,47,41,55,32,39,32,23,28,21,17,22,10,9,11,6,11,15,15,6,3,4,80]

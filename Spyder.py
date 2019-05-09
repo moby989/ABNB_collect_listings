@@ -268,74 +268,126 @@ class Spyder(object):
         
         return drive
     
-    def file_uploadGDrive(self, file_name, folder_name = None):
+    def file_uploadGDrive(self, name, folder_name = None):
 
         """
         upload a file to the authhenicated GoogleDrive
         
         """
+        current_timezone = datetime.now()                            
         
         #authentication        
         drive = self.access_gDrive()
-        
-        # Insert a file. Files are comprised of contents and metadata.
-        # MediaFileUpload abstracts uploading file contents from a file on disk.
+
+        #searching for folder name        
+        try:
+            folder_ID_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+            folder_ID = folder_ID_list['files'][0]['id'] 
+    
+        except IndexError:
+            folder_ID = 'root'
+               
         media_body = googleapiclient.http.MediaFileUpload(
-            file_name,
-            resumable=False)
-        # The body contains the metadata for the file.
+            name,            
+            resumable=False)       
         body = {
-          'name': file_name,
-          'description': 'scraped data'}
+          'name': name,
+          'parents': [folder_ID],
+          'description': 'Upload time: '+str(current_timezone)}
         
-        # Perform the request and print the result.
+        #Perform the request and print the result.
         drive.files().create(body=body, media_body=media_body).execute()
-#        pprint.pprint(new_file)
         
-    def fileDownloadGdrive(self,name):
+        return None
+        
+    def fileDownloadGdrive(self,name,folder_name = None):
         
         """
-        download a file from the authhenicated GoogleDrive
+        download the most recent file from the authhenicated GoogleDrive
         
         """
              
         mod_date = []
-#        print(name)
         
         #authentication        
         drive = self.access_gDrive()
 
         #search file name and getting list of files containing such name        
-        file_list = drive.files().list(q = "name contains '{name}'".format(name = name)).execute()
-#        print (file_list['files'])
+        file_list = drive.files().list(q = "name contains '{name}' and trashed=false".format(name = name)).execute()
+
         #finding the latest file
         for file in file_list['files']:        
             metadata = drive.files().get(fileId = file['id'], fields = 'modifiedTime,id').execute()
             mod_date.append(metadata['modifiedTime'])
        
-#        print (mod_date)
-        file_id_latest = mod_date.index(max(mod_date)) #index of the latest file
+        try:
+            file_id_latest = mod_date.index(max(mod_date)) #index of the latest file
+        except ValueError:
+            return None
+            
         file_id = file_list['files'][file_id_latest]['id'] #id of the latest file
         file_name = file_list['files'][file_id_latest]['name']
-#        print (file_id)
 
         #downloading the file
         
-#        print (file_list['files'][file_id_latest]['name'])
         request = drive.files().get_media(fileId=file_id)
-#        request2 = drive.files().get_media(fileId=file_id).execute()
-#        print(request)
         fh = io.FileIO(file_name,'wb') #file name
         downloader = MediaIoBaseDownload(fh, request) #downloading
         done = False
         while done is False:
             status, done = downloader.next_chunk()
-            print ("Download %d%%." % int(status.progress() * 100))            
+            print ("Download '"+str(file_name)+"' %d%%." % int(status.progress() * 100))            
                
         return file_name
         
-            
     
+    def checkFolderAndClean(self,folder_name,*args):
+        
+        #authentication        
+        drive = self.access_gDrive()
+        
+        #search for FolderID            
+        try:
+            folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+            folder_ID = folder_list['files'][0]['id'] 
+    
+        except IndexError:
+            print ('Folder is not found')
+            print ('Start to collect the calendar from the beggining')
+            return None
+        
+        #files search and download
+        files = []
+        for name in args:
+            try:
+                file_list = drive.files().list(q = "'{folder_ID}' in parents and trashed=false and name contains '{name}'".format(folder_ID = folder_ID, name = name)).execute()            
+                file_ID = file_list['files'][0]['id']            
+            
+            except IndexError:
+                print ('Temp file is not found')
+                print ('Start to collect the calendar from the begining')
+                return None
+        
+            #download the latest version of the file                        
+            files.append(self.fileDownloadGdrive(name))
+        
+        #clean the folder        
+        file_list = drive.files().list(q = "'{folder_ID}' in parents and trashed=false".format(folder_ID = folder_ID)).execute()            
+        for file in file_list['files']:
+            file_ID = file['id']
+            folder_ID = '1xmZaxmRIhFkBYbthTshl1TAuGeZAvzfe'
+        
+            # Retrieve the existing parents to remove
+            file = drive.files().get(fileId=file_ID,
+                                 fields='parents').execute()
+            previous_parents = ",".join(file.get('parents'))
+            # Move the file to the new folder
+            file = drive.files().update(fileId=file_ID,
+                                    addParents=folder_ID,
+                                    removeParents=previous_parents,
+                                    fields='id, parents').execute()
+                
+        return files             
     
 
     def cont_flag_set(self):

@@ -29,7 +29,7 @@ class Airbnb_spyder(Spyder):
                         
         return number_prop
     
-    def getJson(self,payload,retry_count = 1):
+    def getJson(self,payload = None,retry_count = 1):
         
         """
         HELPER FUNCTION
@@ -111,8 +111,8 @@ class Airbnb_spyder(Spyder):
         
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
-        min = 0
-        max = 2000
+        min = 10
+        max = 150
             
         while min < max:
             
@@ -126,7 +126,7 @@ class Airbnb_spyder(Spyder):
             print(histogram)
   
         ##cover the properries which prices higher than 2000USD per night
-        min_max = self.getPriceRange(min,10000)
+        min_max = self.getPriceRange(min,160)
         price_ranges['number of properties'] = min_max[2]
         price_ranges['minimum_price'] = min_max[0]
         price_ranges['maximum_price'] = min_max[1]
@@ -224,12 +224,15 @@ class Airbnb_spyder(Spyder):
         
         property_calendar = {}        
         
-        for month in range (0,11):                
+        for month in range (0,12):                
     
             data_s = self.parserHelper(data,'calendar_months',month,'days')
 
-            if data_s == 'no data':
-                property_calendar['picture_colour'] = 'no calendar data for the property'
+            if isinstance(data_s,type(None)): #returns empty list if the server response was empty
+                error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)
+                text_file = self.createTextFile (error_message,'errors.txt')
+                self.file_uploadGDrive(text_file)
+                property_calendar['extra info'] = 'no calendar data for the property'
 
             else:                
                 property_calendar['date_collected_at'] = self.parserHelper(data,'calendar_months',0,'dynamic_pricing_updated_at')            
