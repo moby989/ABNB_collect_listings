@@ -163,7 +163,7 @@ class Airbnb_spyder(Spyder):
         of properties with relevant info on them
         
         """
-        property_list = [{'id':0,'name':0,'dprice':0,'currency':0,'nreviews':0,\
+        property_list = [{'id':0,'name':0,'localized_city':0,'localized_neighborhood':0,'dprice':0,'currency':0,'nreviews':0,\
         'area':0,'subdistrict':0,'lats':0,'lon':0,'nbedrooms':0,'max_guests':0,'url':0,\
         'instant_booking':0,'monthly_price_f':0,'weekly_price_f':0,'is_superhost':0,\
         'picture_count':0,'host_lang':0,'host_picture':0,'review_score':0,\
@@ -184,6 +184,8 @@ class Airbnb_spyder(Spyder):
                 
                 property['id'] = self.parserHelper(data_s,i,'listing','id')
                 property['name'] = self.parserHelper(data_s,i,'listing','name')
+                property['localized_city'] = self.parserHelper(data_s,i,'listing','localized_city')
+                property['localized_neighborhood'] = self.parserHelper(data_s,i,'listing','localized_neighborhood')
                 property['dprice'] = self.parserHelper(data_s,i,'pricing_quote','rate','amount')
                 property['currency'] = self.parserHelper(data_s,i,'pricing_quote','rate','currency')
                 property['nreviews'] = self.parserHelper(data_s,i,'listing','reviews_count')
