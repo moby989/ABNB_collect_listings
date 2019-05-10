@@ -37,6 +37,9 @@ class Airbnb_spyder(Spyder):
         
         """
         r = self.get_r(self.url,payload)          
+        if payload['items_offset'] == 0:
+            text_file = self.makeTextFile(r.text)
+            self.file_uploadGDrive(text_file)
         try:        
             data = r.json()
         except (JSONDecodeError,AttributeError):
@@ -168,12 +171,17 @@ class Airbnb_spyder(Spyder):
         'instant_booking':0,'monthly_price_f':0,'weekly_price_f':0,'is_superhost':0,\
         'picture_count':0,'host_lang':0,'host_picture':0,'review_score':0,\
         'picture_colour':0,'privacy_type':0,'property type':0,'extra info':0}]
-    
+        
+
         data_s = self.parserHelper(data,'explore_tabs',0,'sections',0,'listings')
             
+        if isinstance(data_s,type(None)):
+            data_s = self.parserHelper(data,'explore_tabs',0,'sections',1,'listings')
+        
         if isinstance(data_s,type(None)): #returns empty list if the server response was empty
             numb_prop = 0
-            error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)
+            print (data)
+            error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)            
             text_file = self.createTextFile (error_message,'errors.txt')
             self.file_uploadGDrive(text_file)            
             
