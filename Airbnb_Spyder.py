@@ -37,9 +37,9 @@ class Airbnb_spyder(Spyder):
         
         """
         r = self.get_r(self.url,payload)          
-        if payload['items_offset'] == 0:
-            text_file = self.makeTextFile(r.text)
-            self.file_uploadGDrive(text_file)
+        #if payload['items_offset'] == 0:
+         #   text_file = self.makeTextFile(r.text)
+          #  self.file_uploadGDrive(text_file)
         try:        
             data = r.json()
         except (JSONDecodeError,AttributeError):
