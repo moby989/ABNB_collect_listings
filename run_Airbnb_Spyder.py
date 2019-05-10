@@ -108,7 +108,7 @@ def scheduleRun(day,type):
 #        #makeCalendarAvail()
 
 
-#    histogram = collectNumberProp()        
+    histogram = collectNumberProp()        
     file_name = my_spyder.fileDownloadGdrive('histogram')
     histogram = my_spyder.get_data_from_file(file_name)
     data = collect_db(my_spyder.url,type,histogram)
@@ -117,7 +117,7 @@ def scheduleRun(day,type):
 
 day = datetime.isoweekday(datetime.today())
 #for url in URLs[:1]:
-url = {'type':'entire_home', 'url': 'https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web&_intents=p1&adults=2&auto_ib=false&checkin=2019-05-30&checkout=2019-06-02&client_session_id=576f9bd5-9b97-4f55-891a-8584d0cc9845&currency=USD&experiences_per_grid=20&fetch_filters=true&guidebooks_per_grid=20&has_zero_guest_treatment=true&ib=true&infants=1&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid=50&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=en&luxury_pre_launch=false&metadata_only=false&place_id=ChIJyY4rtGcX2jERIKTarqz3AAQ&query=Singapore&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes&room_types%5B%5D=Private%20room&room_types%5B%5D=Hotel%20room&satori_version=1.1.9&screen_height=721&screen_size=small&screen_width=611&search_type=FILTER_CHANGE&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=480&version=1.4.8'}    
+url = {'type':'private_rooms', 'url': 'https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web&_intents=p1&adults=2&auto_ib=false&checkin=2019-05-30&checkout=2019-06-02&client_session_id=576f9bd5-9b97-4f55-891a-8584d0cc9845&currency=USD&experiences_per_grid=20&fetch_filters=true&guidebooks_per_grid=20&has_zero_guest_treatment=true&ib=true&infants=1&is_guided_search=true&is_new_cards_experiment=true&is_standard_search=true&items_per_grid=50&key=d306zoyjsyarp7ifhu67rjxn52tv0t20&locale=en&luxury_pre_launch=false&metadata_only=false&place_id=ChIJyY4rtGcX2jERIKTarqz3AAQ&query=Singapore&query_understanding_enabled=true&refinement_paths%5B%5D=%2Fhomes&room_types%5B%5D=Private%20room&room_types%5B%5D=Hotel%20room&satori_version=1.1.9&screen_height=721&screen_size=small&screen_width=611&search_type=FILTER_CHANGE&selected_tab_id=home_tab&show_groupings=true&supports_for_you_v3=true&timezone_offset=480&version=1.4.8'}    
 my_spyder = Airbnb_spyder(url['url'])
 #    my_spyder = Airbnb_spyder('http://book22ing.com')
 data = scheduleRun(day,url['type'])
