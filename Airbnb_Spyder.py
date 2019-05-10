@@ -70,7 +70,8 @@ class Airbnb_spyder(Spyder):
         
         data = self.getJson(payload)
         
-        number = self.getNumberProp(data)        
+        number = self.getNumberProp(data)  
+        print ('number '+str(number)+' min '+str(min)+' max '+str(max))
         
         if isinstance(number,type(None)):
             return min,max,0
@@ -112,7 +113,7 @@ class Airbnb_spyder(Spyder):
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
         min = 10
-        max = 150
+        max = 100
             
         while min < max:
             
@@ -126,7 +127,7 @@ class Airbnb_spyder(Spyder):
             print(histogram)
   
         ##cover the properries which prices higher than 2000USD per night
-        min_max = self.getPriceRange(min,160)
+        min_max = self.getPriceRange(min,102)
         price_ranges['number of properties'] = min_max[2]
         price_ranges['minimum_price'] = min_max[0]
         price_ranges['maximum_price'] = min_max[1]
