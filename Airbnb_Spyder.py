@@ -9,7 +9,7 @@ Created on Wed Mar 20 15:29:38 2019
 from Spyder import Spyder
 from json import JSONDecodeError
 import math
-
+import pandas as pd
 
 class Airbnb_spyder(Spyder):
  
@@ -37,9 +37,9 @@ class Airbnb_spyder(Spyder):
         
         """
         r = self.get_r(self.url,payload)          
-        #if payload['items_offset'] == 0:
-         #   text_file = self.makeTextFile(r.text)
-          #  self.file_uploadGDrive(text_file)
+#        if payload['items_offset'] == 0:
+#            text_file = self.makeTextFile(r.text)
+#            self.file_uploadGDrive(text_file)
         try:        
             data = r.json()
         except (JSONDecodeError,AttributeError):
@@ -115,8 +115,8 @@ class Airbnb_spyder(Spyder):
         
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
-        min = 10
-        max = 100
+        min = 0
+        max = 2000
             
         while min < max:
             
@@ -130,7 +130,7 @@ class Airbnb_spyder(Spyder):
             print(histogram)
   
         ##cover the properries which prices higher than 2000USD per night
-        min_max = self.getPriceRange(min,102)
+        min_max = self.getPriceRange(min,10000)
         price_ranges['number of properties'] = min_max[2]
         price_ranges['minimum_price'] = min_max[0]
         price_ranges['maximum_price'] = min_max[1]
@@ -265,4 +265,73 @@ class Airbnb_spyder(Spyder):
                         property_calendar[date] = 'n/a'
                                         
         return property_calendar
-                        
+    
+    def collectNumberProp(self,ptype):
+
+        """
+        collects the number of properties for each price range to get the number close to 300
+        """
+        
+        histogram = self.getPriceRangeWrapper()
+        name_histogram = '{ptype}_histogram'.format(ptype = ptype)
+    
+        #saving data
+        xl_file = self.save_data(histogram,'excel',name_histogram)
+        self.file_uploadGDrive(xl_file,'Airbnb')
+        csv_file = self.save_data(histogram,'csv',name_histogram)
+        self.file_uploadGDrive(csv_file,'Airbnb')
+            
+        return histogram
+    
+    def collect_db(self,ptype,histogram):
+    
+        """
+        collects all the properties for each price range into the list of dicts 
+
+        """        
+        
+        property_list = []
+        hist_actual = []
+        hist = {}
+        total = 0
+        
+        for i in histogram.index:
+            hist = {}
+            number_t = 0
+            number = 0
+            ofs = 0
+            last_page_flag = True        
+            
+            while last_page_flag:        
+                payload = {'price_min':histogram.minimum_price[i],'price_max':histogram.maximum_price[i],'items_offset':ofs}                        
+                data = self.getJson(payload)
+                processed_data = self.parsePage(data)
+                property_list.extend(processed_data[0][1:])
+                number = processed_data[1]         
+                print('URL requested for prices from ' + str(payload['price_min']) + ' until ' + str(payload['price_max']))
+                print('Got info for ' + str(number) + ' properties.')             
+                ofs +=50
+                last_page_flag = self.parserHelper(data,'explore_tabs',0,'pagination_metadata','has_next_page')   
+                number_t += number
+            
+            total += number_t
+    
+            hist[number_t] = (payload['price_min'],payload['price_max'])
+            hist_actual.append(hist)
+       
+        property_list.insert(0,processed_data[0][0])
+        
+        #save data        
+        xl_file = self.save_data(property_list,'excel','{ptype}_db'.format(ptype = ptype))
+        self.file_uploadGDrive(xl_file,'Airbnb')
+        csv_file = self.save_data(property_list,'csv','{ptype}_db'.format(ptype = ptype))
+        self.file_uploadGDrive(csv_file,'Airbnb')
+                
+        print (histogram)
+        print('total number of properties -->'+str(total))
+        txt_file = self.createTextFile ((histogram,str('total number of properties -->')+str(total)),'Parsed properties.txt')        
+        self.file_uploadGDrive(txt_file)
+    
+        return None
+    
+                            

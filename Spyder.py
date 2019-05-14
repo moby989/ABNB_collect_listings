@@ -95,11 +95,9 @@ class Spyder(object):
             
         writer = FileWriter(data)                
         
-        create_file_name = writer.output_file(format,file_name,folder_name)
-        
-#        writer.upload_file_to_GoogleDrive(create_file_name,folder_name)
-            
-        return create_file_name    
+        file_name = writer.output_file(format,file_name,folder_name)
+                    
+        return file_name    
 
     def createTextFile (self,data,name):
         
@@ -142,6 +140,7 @@ class Spyder(object):
             self.calls = 0
         
         try:        
+            print (url)
             r = requests.get(url, cookies = self.makeCookiesDict(cookies), headers = self.headers, params = payload,timeout = 10)
             print('URL -> ' + str(r.url))    
 
@@ -241,6 +240,7 @@ class Spyder(object):
         return file_name
             
     def access_gDrive(self):
+        
         """Shows basic usage of the Drive v3 API.
         Prints the names and ids of the first 10 files the user has access to.
         """
