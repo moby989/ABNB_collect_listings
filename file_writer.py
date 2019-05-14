@@ -47,7 +47,7 @@ class FileWriter(object):
                     else:
                         ws.cell(row=i, column=j).value = self.data[1:][i-2].get(fieldnames[j-1])       
                                                                             
-            file_to_create_name = '{name}{today}.xlsx'.format(name=file_name,today=self.today)
+            file_to_create_name = '{name}.xlsx'.format(name=file_name)
             
 #            save_path = os.path.join(os.getcwd(),folder_name)
 
@@ -59,7 +59,7 @@ class FileWriter(object):
                     
         else:
 
-            file_to_create_name = '{name}{today}.csv'.format(name = file_name,today = self.today)
+            file_to_create_name = '{name}.csv'.format(name = file_name)
 
 #            save_path = os.path.join(os.getcwd(),folder_name)
 #            complete_name = os.path.join(save_path, file_to_create_name)
