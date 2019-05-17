@@ -37,7 +37,7 @@ def scheduleRun():
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
 
-    for URL in URLs.index[1:]:
+    for URL in URLs.index:
         my_spyder = Airbnb_spyder(URLs.URL[URL].strip('﻿'))      
         ptype = URLs.TYPE[URL]
 
