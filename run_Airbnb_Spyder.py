@@ -21,11 +21,13 @@ Schedule:
 2) collect db - weekly
 3) collect calendar - daily/different module
 
+
 Сделать загрузку файла ошибок и добавление новых данных
 client session id убрать из запросов
 сделать файл с отчетом и отсылку на емаэл в случае глобальной ошибки
 добавить счетчики 
 текстовый файл загрузка в папку
+переделать запись в HDF
 
 """
 
@@ -37,7 +39,7 @@ def scheduleRun():
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
 
-    for URL in URLs.index:
+    for URL in URLs.index[1:]:
         my_spyder = Airbnb_spyder(URLs.URL[URL].strip('﻿'))      
         ptype = URLs.TYPE[URL]
 

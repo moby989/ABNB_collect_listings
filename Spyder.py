@@ -127,7 +127,7 @@ class Spyder(object):
                        
         return data_extracted       
     
-    def get_r(self,url, payload = None, retry_count = 1):
+    def get_r(self,url,payload = None,retry_count = 1,check_calc = False):
         
         """
         make requests with REQUESTS library
@@ -136,7 +136,7 @@ class Spyder(object):
                 
         if self.calls > 100:
             self.timer(200)
-            print ('DELAY AFTER 200 REQUESTS')
+            print ('DELAY AFTER 100 REQUESTS')
             self.calls = 0
         
         try:        
@@ -159,8 +159,12 @@ class Spyder(object):
                 r = self.get_r(url,payload,retry_count)                        
                 
         self.calls +=1
-        
-        delay = random.randint(1,15)
+                
+        if check_calc:            
+            delay = random.randint(20,30)
+        else:
+            delay = random.randint(1,15)
+
         self.timer(delay)
                 
         return r
@@ -266,6 +270,8 @@ class Spyder(object):
        #authenticated GoogleDrive object
         drive = build('drive', 'v3', credentials = creds)
         
+        time.sleep(1)
+        
         return drive
     
     def file_uploadGDrive(self, name, folder_name = None):
@@ -289,14 +295,23 @@ class Spyder(object):
                
         media_body = googleapiclient.http.MediaFileUpload(
             name,            
-            resumable=False)       
+            resumable=True,
+            chunksize=1048576)       
         body = {
           'name': name,
           'parents': [folder_ID],
           'description': 'Upload time: '+str(current_timezone)}
         
         #Perform the request and print the result.
-        drive.files().create(body=body, media_body=media_body).execute()
+        request = drive.files().create(body=body, media_body=media_body)
+#        print (request)        
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+#            print ('loading next chunk')
+            if status:
+                print ("Uploaded %d%%." % int(status.progress() * 100))
+        print ("Upload Complete!")
         
         return None
         
@@ -311,10 +326,27 @@ class Spyder(object):
         
         #authentication        
         drive = self.access_gDrive()
+        
+        #searching Folder_ID
+        if folder_name:             
+            try:
+                folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+                folder_ID = folder_list['files'][0]['id']
+    
+            except IndexError:
+                print ('Folder is not found')
+                print ('Cant download the file from that folder')    
+                return None
 
-        #search file name and getting list of files containing such name        
-        file_list = drive.files().list(q = "name contains '{name}' and trashed=false".format(name = name)).execute()
+            #search file name and getting list of files containing such name        )
+            file_list = drive.files().list(q = "'{folder_ID}' in parents and name contains '{name}' and trashed=false".format(name = name, folder_ID = folder_ID)).execute()
+#            print ('ищем в папке')
+#            print (file_list)
 
+        else:
+            file_list = drive.files().list(q = "name contains '{name}' and trashed=false".format(name = name)).execute()
+#            print ('ищем везде')
+            
         #finding the latest file
         for file in file_list['files']:        
             metadata = drive.files().get(fileId = file['id'], fields = 'modifiedTime,id').execute()
@@ -341,7 +373,7 @@ class Spyder(object):
         return file_name
         
     
-    def checkFolderAndClean(self,folder_name,*args):
+    def checkGdriveAndDownloand(self,folder_name,*args):
         
         #authentication        
         drive = self.access_gDrive()
@@ -350,6 +382,7 @@ class Spyder(object):
         try:
             folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
             folder_ID = folder_list['files'][0]['id'] 
+#            print (folder_ID)
     
         except IndexError:
             print ('Folder is not found')
@@ -360,16 +393,37 @@ class Spyder(object):
         files = []
         for name in args:
             try:
-                file_list = drive.files().list(q = "'{folder_ID}' in parents and trashed=false and name contains '{name}'".format(folder_ID = folder_ID, name = name)).execute()            
-                file_ID = file_list['files'][0]['id']            
+                drive.files().list(q = "'{folder_ID}' in parents and trashed=false and name contains '{name}'".format(folder_ID = folder_ID, name = name)).execute()                        
+#                file_ID = file_list['files'][0]['id']            
             
             except IndexError:
-                print ('Temp file is not found')
+                print ('Temp files are not found')
                 print ('Start to collect the calendar from the begining')
                 return None
         
             #download the latest version of the file                        
-            files.append(self.fileDownloadGdrive(name))
+            files.append(self.fileDownloadGdrive(name,folder_name))
+        
+       
+        return files     
+
+
+    def cleanFolderGdrive(self,folder_name):
+
+        """
+        moves temporary files from Temp Folder into Trash Folder (Manual Trash)        
+        """
+        #authentication        
+        drive = self.access_gDrive()
+        
+        #search for FolderID            
+        try:
+            folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+            folder_ID = folder_list['files'][0]['id'] 
+            
+        except IndexError:
+            print ('Folder is not found and not cleaned')
+            return None
         
         #clean the folder        
         file_list = drive.files().list(q = "'{folder_ID}' in parents and trashed=false".format(folder_ID = folder_ID)).execute()            
@@ -387,8 +441,7 @@ class Spyder(object):
                                     removeParents=previous_parents,
                                     fields='id, parents').execute()
                 
-        return files             
-    
+        return print ('Temp folder cleaned')
 
     def cont_flag_set(self):
        
