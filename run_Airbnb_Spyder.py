@@ -34,28 +34,30 @@ client session id убрать из запросов
 def scheduleRun():
      
     day = datetime.isoweekday(Spyder().today)
+    today = datetime.isocalendar(Spyder().today)
+    #print (today)
     
     #reading the list of URL to parse from GD
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
 
-    for URL in URLs.index:
-        my_spyder = Airbnb_spyder(URLs.URL[URL].strip('﻿'))      
+    for URL in URLs.index[:1]:
+        ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
-
-        if day == 2:
+        columns = ['Date','P_type','N_collected','New_properties',
+                   'Properties_disposed','Errors_URL','Errors_JSON']
+        ms.stats = pd.DataFrame(columns = columns)
+#        ms.stats.append({'Date':today,'P_type':ptype},ignore_index = True)
+#        print (ms.stats)    
+        if day == 6:
             #collect price histogram
-            histogram = my_spyder.collectNumberProp(ptype)        
+            histogram = ms.collectNumberProp(ptype)        
        
         #collect property db   
-        hist_file = my_spyder.fileDownloadGdrive('{ptype}_histogram'.format(ptype=ptype))
+        hist_file = ms.fileDownloadGdrive('{ptype}_histogram'.format(ptype=ptype))
         histogram = pd.read_csv(hist_file)
-        my_spyder.collect_db(ptype,histogram)
+        ms.collect_db(ptype,histogram)
 
-#    histogram = collectNumberProp()        
-#    file_name = my_spyder.fileDownloadGdrive('histogram')
-#    histogram = my_spyder.get_data_from_file(file_name)
-#    data = collect_db(my_spyder.url,type,histogram)
 
     return None
 
