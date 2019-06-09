@@ -14,7 +14,6 @@ import requests
 from datetime import datetime,timedelta
 import random
 import sys
-from Cookies import headers,cookies
 import pickle
 import os.path
 from googleapiclient.discovery import build
@@ -28,16 +27,17 @@ from googleapiclient.http import MediaIoBaseDownload
 from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
+#import pandas as pd
 
 
 class Spyder(object):
 
     def __init__(self):
-        
-        self.headers = headers #taken from cookies files  
+            
         self.calls = 0 ## counter for requests, later if the number of requests >200 
         #the code freezes for 200sec
         self.today = datetime.today().date()
+    
     
     def makeCookiesDict(self,cookies):
         
@@ -140,8 +140,7 @@ class Spyder(object):
             self.calls = 0
         
         try:        
-            print (url)
-            r = requests.get(url, cookies = self.makeCookiesDict(cookies), headers = self.headers, params = payload,timeout = 10)
+            r = requests.get(url, cookies = self.cookies, headers = self.headers, params = payload,timeout = 10)
             print('URL -> ' + str(r.url))    
 
         except (ConnectionError,Timeout,ReadTimeout):
@@ -190,7 +189,7 @@ class Spyder(object):
         """        
         booking_dates = [] #list of dict each represening a pair of checkin/out days
         
-        today = datetime.today()+timedelta(days=19)
+        today = datetime.today()+timedelta(days=1)
         
         delta = timedelta(days=length_stay)
         
