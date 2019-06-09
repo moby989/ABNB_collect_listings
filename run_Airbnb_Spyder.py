@@ -49,7 +49,7 @@ def scheduleRun():
         ms.stats = pd.DataFrame(columns = columns)
 #        ms.stats.append({'Date':today,'P_type':ptype},ignore_index = True)
 #        print (ms.stats)    
-        if day == 6:
+        if day == 7:
             #collect price histogram
             histogram = ms.collectNumberProp(ptype)        
        
@@ -61,8 +61,23 @@ def scheduleRun():
 
     return None
 
+def collectHistogram():
+    
+    file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
+    URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
 
-scheduleRun()
+    
+    for URL in URLs.index[:1]:
+        ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
+        ptype = URLs.TYPE[URL]
+        histogram = ms.collectNumberProp(ptype)        
+
+    return histogram
+    
+
+
+#scheduleRun()
+collectHistogram()
     
 
 
