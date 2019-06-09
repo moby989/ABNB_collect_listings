@@ -45,7 +45,7 @@ def scheduleRun():
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
 
-    for URL in URLs.index[:1]:
+    for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
         columns = ['Date','P_type','N_collected','New_properties',
@@ -73,7 +73,7 @@ def collectHistogram():
     df_hist = pd.read_excel(file_HIST,sheet_name = 'HIST',index_col = [0,1])
 
         
-    for URL in URLs.index[2:]:
+    for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
         df_hist1 = pd.DataFrame(ms.collectNumberProp(ptype),dtype=np.int8)
