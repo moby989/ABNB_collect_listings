@@ -45,7 +45,7 @@ def scheduleRun():
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
 
-    for URL in URLs.index[:1]:
+    for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
         columns = ['Date','P_type','N_collected','New_properties',
@@ -66,20 +66,25 @@ def scheduleRun():
     return None
 
 def collectHistogram():
+    """
+    calculate price ranges to get the number of properties in each close 
+    to 300 or actual    
+    """
+    
     
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
     file_HIST = Spyder().fileDownloadGdrive('HISTOGRAM.xlsx')
     df_hist = pd.read_excel(file_HIST,sheet_name = 'HIST',index_col = [0,1])
-
         
-    for URL in URLs.index[2:]:
+    for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
-        df_hist1 = pd.DataFrame(ms.collectNumberProp(ptype),dtype=np.int8)
+        df_hist1 = pd.DataFrame(ms.collectNumberProp(ptype))
         df_hist1['date_col'] = datetime.today().strftime('%Y-%m-%d')
         df_hist1['ptype'] = ptype
-        df_hist1 = df_hist1.set_index(['date_col','ptype']).sort_index(level = 'date_col')
+        df_hist1 = df_hist1.set_index(['date_col','ptype']).sort_index(level =\
+                                     'date_col')
         df_hist = df_hist.append(df_hist1, sort = False)
 
     df_groups1= df_hist.groupby(level = [0,1]).sum()['number of properties']
@@ -95,13 +100,6 @@ def collectHistogram():
     return df_hist
     
 
-
 #scheduleRun()
-k = collectHistogram()
+collectHistogram()
     
-
-
-
-#histogram = [{'number of properties':0,'minimum_price':10,'maximum_price':10}]
-#collect_db(my_spyder.url,url['type'],histogram)
-#shared_prop_hist = [372,346,442,1184,1358,1959,2103,1929,1398,1095,919,820,614,543,582,611,406,356,329,259,255,144,149,80,111,82,82,97,47,41,55,32,39,32,23,28,21,17,22,10,9,11,6,11,15,15,6,3,4,80]
