@@ -9,7 +9,8 @@ Created on Wed Mar 20 15:29:38 2019
 from Spyder import Spyder
 from json import JSONDecodeError
 import math
-import pandas as pd
+#import pandas as pd
+from Cookies import headers_ABNB,cookies_ABNB
 
 class Airbnb_spyder(Spyder):
  
@@ -17,6 +18,8 @@ class Airbnb_spyder(Spyder):
         
         Spyder.__init__(self)
         self.url = url                     
+        self.cookies = Spyder().makeCookiesDict(cookies_ABNB)
+        self.headers = headers_ABNB        
         
     def getNumberProp(self,data):
         
@@ -29,17 +32,20 @@ class Airbnb_spyder(Spyder):
                         
         return number_prop
     
-    def getJson(self,payload = None,retry_count = 1):
+    def getJson(self,payload = None,retry_count = 1, check_calc = False):
         
         """
         HELPER FUNCTION
         retries requests if the previous attempt was unsuccessful
         
         """
-        r = self.get_r(self.url,payload)          
-#        if payload['items_offset'] == 0:
-#            text_file = self.makeTextFile(r.text)
-#            self.file_uploadGDrive(text_file)
+        
+        if check_calc == True:
+            r = self.get_r(self.url,payload, check_calc = True)
+        
+        else:
+            r = self.get_r(self.url,payload)
+
         try:        
             data = r.json()
         except (JSONDecodeError,AttributeError):
@@ -116,7 +122,7 @@ class Airbnb_spyder(Spyder):
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
         min = 0
-        max = 2000
+        max = 10
             
         while min < max:
             
@@ -130,7 +136,7 @@ class Airbnb_spyder(Spyder):
             print(histogram)
   
         ##cover the properries which prices higher than 2000USD per night
-        min_max = self.getPriceRange(min,10000)
+        min_max = self.getPriceRange(min,11)
         price_ranges['number of properties'] = min_max[2]
         price_ranges['minimum_price'] = min_max[0]
         price_ranges['maximum_price'] = min_max[1]
@@ -250,7 +256,7 @@ class Airbnb_spyder(Spyder):
                 for i in range(len(data_s)):                                    
                     if self.parserHelper(data_s,i,'available'):
                         date = self.parserHelper(data_s,i,'date')             
-                        price = self.parserHelper(data_s,i,'price','local_price')
+                        price = int(self.parserHelper(data_s,i,'price','local_price'))
                         min_nights = self.parserHelper(data_s,i,'min_nights')
                         max_nights = self.parserHelper(data_s,i,'max_nights')
                         price_method = self.parserHelper(data_s,i,'price','type')                                        
@@ -262,7 +268,7 @@ class Airbnb_spyder(Spyder):
         
                     else:
                         date = self.parserHelper(data_s,i,'date')
-                        property_calendar[date] = 'n/a'
+                        property_calendar[date] = -1
                                         
         return property_calendar
     
@@ -280,7 +286,9 @@ class Airbnb_spyder(Spyder):
         self.file_uploadGDrive(xl_file,'Airbnb')
         csv_file = self.save_data(histogram,'csv',name_histogram)
         self.file_uploadGDrive(csv_file,'Airbnb')
-            
+        
+        
+        
         return histogram
     
     def collect_db(self,ptype,histogram):
@@ -323,10 +331,14 @@ class Airbnb_spyder(Spyder):
         
         #save data        
         xl_file = self.save_data(property_list,'excel','{ptype}_db'.format(ptype = ptype))
-        self.file_uploadGDrive(xl_file,'Airbnb')
+        self.file_uploadGDrive(xl_file,'PROPERTY_DB')
         csv_file = self.save_data(property_list,'csv','{ptype}_db'.format(ptype = ptype))
-        self.file_uploadGDrive(csv_file,'Airbnb')
+        self.file_uploadGDrive(csv_file,'PROPERTY_DB')
                 
+        #updating stats
+        self.stats['Dat']
+    
+
         print (histogram)
         print('total number of properties -->'+str(total))
         txt_file = self.createTextFile ((histogram,str('total number of properties -->')+str(total)),'Parsed properties.txt')        
@@ -334,4 +346,5 @@ class Airbnb_spyder(Spyder):
     
         return None
     
-                            
+
+                           

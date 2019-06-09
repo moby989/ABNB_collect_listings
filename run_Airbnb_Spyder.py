@@ -10,6 +10,7 @@ Created on Wed Mar 20 19:39:41 2019
 from Airbnb_Spyder import Airbnb_spyder
 from Spyder import Spyder
 import pandas as pd
+import numpy as np
 #from URLs import URLs
 from datetime import datetime
 
@@ -30,11 +31,14 @@ client session id убрать из запросов
 переделать запись в HDF
 
 """
+day = datetime.isoweekday(Spyder().today)
+today = datetime.isocalendar(Spyder().today)
+
 
 def scheduleRun():
      
-    day = datetime.isoweekday(Spyder().today)
-    today = datetime.isocalendar(Spyder().today)
+#    day = datetime.isoweekday(Spyder().today)
+#    today = datetime.isocalendar(Spyder().today)
     #print (today)
     
     #reading the list of URL to parse from GD
@@ -65,19 +69,35 @@ def collectHistogram():
     
     file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
     URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
+    file_HIST = Spyder().fileDownloadGdrive('HISTOGRAM.xlsx')
+    df_hist = pd.read_excel(file_HIST,sheet_name = 'HIST',index_col = [0,1])
 
-    
-    for URL in URLs.index[:1]:
+        
+    for URL in URLs.index[2:]:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
-        histogram = ms.collectNumberProp(ptype)        
+        df_hist1 = pd.DataFrame(ms.collectNumberProp(ptype),dtype=np.int8)
+        df_hist1['date_col'] = datetime.today().strftime('%Y-%m-%d')
+        df_hist1['ptype'] = ptype
+        df_hist1 = df_hist1.set_index(['date_col','ptype']).sort_index(level = 'date_col')
+        df_hist = df_hist.append(df_hist1, sort = False)
 
-    return histogram
+    df_groups1= df_hist.groupby(level = [0,1]).sum()['number of properties']
+    df_groups2= df_hist.groupby(level = 0).sum()['number of properties']    
+    
+    with pd.ExcelWriter('HISTOGRAM.xlsx') as writer:
+        df_groups1.to_excel(writer, sheet_name='GROUPS_BY_TYPE')
+        df_groups2.to_excel(writer, sheet_name='GROUPS_BY_DATE')
+        df_hist.to_excel(writer, sheet_name='HIST')      
+        
+    Spyder().file_uploadGDrive('HISTOGRAM.xlsx','HISTOGRAM')
+    
+    return df_hist
     
 
 
 #scheduleRun()
-collectHistogram()
+k = collectHistogram()
     
 
 
