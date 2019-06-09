@@ -122,7 +122,7 @@ class Airbnb_spyder(Spyder):
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
         min = 0
-        max = 10
+        max = 2000
             
         while min < max:
             
@@ -136,7 +136,7 @@ class Airbnb_spyder(Spyder):
             print(histogram)
   
         ##cover the properries which prices higher than 2000USD per night
-        min_max = self.getPriceRange(min,11)
+        min_max = self.getPriceRange(min,10000)
         price_ranges['number of properties'] = min_max[2]
         price_ranges['minimum_price'] = min_max[0]
         price_ranges['maximum_price'] = min_max[1]
@@ -283,12 +283,10 @@ class Airbnb_spyder(Spyder):
     
         #saving data
         xl_file = self.save_data(histogram,'excel',name_histogram)
-        self.file_uploadGDrive(xl_file,'Airbnb')
+        self.file_uploadGDrive(xl_file,'HISTOGRAM')
         csv_file = self.save_data(histogram,'csv',name_histogram)
-        self.file_uploadGDrive(csv_file,'Airbnb')
-        
-        
-        
+        self.file_uploadGDrive(csv_file,'HISTOGRAM')
+                        
         return histogram
     
     def collect_db(self,ptype,histogram):
