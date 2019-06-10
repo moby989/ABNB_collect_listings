@@ -122,7 +122,7 @@ class Airbnb_spyder(Spyder):
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
         min = 0
-        max = 2000
+        max = 800
             
         while min < max:
             
@@ -283,9 +283,9 @@ class Airbnb_spyder(Spyder):
     
         #saving data
         xl_file = self.save_data(histogram,'excel',name_histogram)
-        self.file_uploadGDrive(xl_file,'HISTOGRAM')
+        self.file_uploadGDrive(xl_file,'OTHER_DATA')
         csv_file = self.save_data(histogram,'csv',name_histogram)
-        self.file_uploadGDrive(csv_file,'HISTOGRAM')
+        self.file_uploadGDrive(csv_file,'OTHER_DATA')
                         
         return histogram
     

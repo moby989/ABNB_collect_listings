@@ -72,16 +72,16 @@ def collectHistogram():
     """
     
     
-    file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB')
-    URLs = pd.read_excel(file_URL,sheet = 'Bali',index_col = 0)
-    file_HIST = Spyder().fileDownloadGdrive('HISTOGRAM.xlsx')
+    file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB','URL_LIST')
+    URLs = pd.read_excel(file_URL,index_col = 0)
+    file_HIST = Spyder().fileDownloadGdrive('HISTOGRAM.xlsx','HISTOGRAM')
     df_hist = pd.read_excel(file_HIST,sheet_name = 'HIST',index_col = [0,1])
         
     for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
         ptype = URLs.TYPE[URL]
         df_hist1 = pd.DataFrame(ms.collectNumberProp(ptype))
-        df_hist1['date_col'] = datetime.today().strftime('%Y-%m-%d')
+        df_hist1['date_col'] = datetime.today().strftime('%Y-%m-%d, %H:%M:%S')
         df_hist1['ptype'] = ptype
         df_hist1 = df_hist1.set_index(['date_col','ptype']).sort_index(level =\
                                      'date_col')
