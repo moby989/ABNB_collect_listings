@@ -19,7 +19,8 @@ class Airbnb_spyder(Spyder):
         Spyder.__init__(self)
         self.url = url                     
         self.cookies = Spyder().makeCookiesDict(cookies_ABNB)
-        self.headers = headers_ABNB        
+        self.headers = headers_ABNB
+        self.errors_JSON = 0
         
     def getNumberProp(self,data):
         
@@ -51,14 +52,15 @@ class Airbnb_spyder(Spyder):
         except (JSONDecodeError,AttributeError):
             error_message = 'There was an error getting JSON object from URL {url} and {payload}'.format(url = self.url,payload = payload)
             text_file = self.createTextFile (error_message,'errors.txt')
-            self.file_uploadGDrive(text_file)
+            self.file_uploadGDrive(text_file,'Errors')
             data = None
             
         print ('Retry getting JSON N '+str(retry_count))
 
         if isinstance(data,type(None)):
-            retry_count +=1 
+            retry_count +=1             
             if retry_count > 4:
+                self.errors_JSON +=1
                 print("can't make the request to API")
                 return data
             else:
@@ -122,7 +124,7 @@ class Airbnb_spyder(Spyder):
         price_ranges = {}
         histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
         min = 0
-        max = 800
+        max = 1250
             
         while min < max:
             

@@ -37,6 +37,7 @@ class Spyder(object):
         self.calls = 0 ## counter for requests, later if the number of requests >200 
         #the code freezes for 200sec
         self.today = datetime.today().date()
+        self.errors_URL = 0
     
     
     def makeCookiesDict(self,cookies):
@@ -147,10 +148,11 @@ class Spyder(object):
             print ('Max retries or Timeout exceeded for URL {url}'.format(url = url))
             error_message = 'Max retries or Timeout exceeded for URL {url}'.format(url = url)
             text_file = self.createTextFile (error_message,'errors.txt')
-            self.file_uploadGDrive(text_file)
+            self.file_uploadGDrive(text_file,'Errors')
             retry_count +=1
             print ('Retry getting URL # '+str(retry_count))
             if retry_count > 2:
+                self.errors_URL +=1
                 r = 1
             else:
                 delay = random.randint(1,15)
