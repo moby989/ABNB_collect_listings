@@ -9,7 +9,7 @@ Created on Wed Mar 20 15:29:38 2019
 from Spyder import Spyder
 from json import JSONDecodeError
 import math
-#import pandas as pd
+import pandas as pd
 from Cookies import headers_ABNB,cookies_ABNB
 
 class Airbnb_spyder(Spyder):
@@ -49,7 +49,8 @@ class Airbnb_spyder(Spyder):
 
         try:        
             data = r.json()
-        except (JSONDecodeError,AttributeError):
+        except (JSONDecodeError,AttributeError) as e:
+            print(e.__class__)
             error_message = 'There was an error getting JSON object from URL {url} and {payload}'.format(url = self.url,payload = payload)
             text_file = self.createTextFile (error_message,'errors.txt')
             self.file_uploadGDrive(text_file,'Errors')
@@ -182,16 +183,15 @@ class Airbnb_spyder(Spyder):
         
 
         data_s = self.parserHelper(data,'explore_tabs',0,'sections',0,'listings')
-            
+
         if isinstance(data_s,type(None)):
             data_s = self.parserHelper(data,'explore_tabs',0,'sections',1,'listings')
-        
-        if isinstance(data_s,type(None)): #returns empty list if the server response was empty
+
+        if isinstance(data_s,type(None)) or len(data_s) == 0: #returns empty list if the server response was empty
             numb_prop = 0
-            print (data)
             error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)            
             text_file = self.createTextFile (error_message,'errors.txt')
-            self.file_uploadGDrive(text_file)            
+            self.file_uploadGDrive(text_file,'Errors')            
             
         else:            
             for i in range(len(data_s)):
@@ -230,7 +230,10 @@ class Airbnb_spyder(Spyder):
     
                 property_list.append(property)  
                 numb_prop = len(data_s)
-
+                
+        
+        print(numb_prop)
+        
         return property_list,numb_prop
         
     def parsePageProperty(self,data):
@@ -274,6 +277,42 @@ class Airbnb_spyder(Spyder):
                                         
         return property_calendar
     
+    def checkDbAddDisp(self,df1,df2):
+        """
+        compares the current db with the previous to identify added or disposed
+        properties        
+        """
+        
+        index1 = df1.index.droplevel(0)
+        index2 = df2.index.droplevel(0)
+        
+        additions = index1.difference(index2)
+        disposals = index2.difference(index1)
+                    
+        df_additions = pd.DataFrame()
+        df_disposals = pd.DataFrame()
+
+        try:
+            if len(additions) ==0:
+                pass
+            else:
+                df_additions = df1.reset_index(level = 0).\
+                reindex(index = additions).reset_index().set_index(['ptype','id']).sort_index(level =\
+                                         'ptype')
+        except AttributeError:
+             pass   
+        try:
+            if len(disposals) == 0:
+                pass
+            else:
+                df_disposals = df2.reset_index(level = 0).\
+                    reindex(index = disposals).reset_index().set_index(['ptype','id']).sort_index(level =\
+                                 'ptype')                          
+        except AttributeError:
+            pass
+                                        
+        return df_additions,df_disposals          
+    
     def collectNumberProp(self,ptype):
 
         """
@@ -296,14 +335,13 @@ class Airbnb_spyder(Spyder):
         """
         collects all the properties for each price range into the list of dicts 
 
-        """        
-        
+        """                
         property_list = []
         hist_actual = []
         hist = {}
-        total = 0
+        total = 0        
         
-        for i in histogram.index:
+        for row in histogram.loc[ptype].iterrows():
             hist = {}
             number_t = 0
             number = 0
@@ -311,7 +349,7 @@ class Airbnb_spyder(Spyder):
             last_page_flag = True        
             
             while last_page_flag:        
-                payload = {'price_min':histogram.minimum_price[i],'price_max':histogram.maximum_price[i],'items_offset':ofs}                        
+                payload = {'price_min':row[1][1],'price_max':row[1][2],'items_offset':ofs}                        
                 data = self.getJson(payload)
                 processed_data = self.parsePage(data)
                 property_list.extend(processed_data[0][1:])
@@ -324,27 +362,14 @@ class Airbnb_spyder(Spyder):
             
             total += number_t
     
-            hist[number_t] = (payload['price_min'],payload['price_max'])
+            hist['n_properties'] = number_t
+            hist['minumum_price'] = payload['price_min']
+            hist['maximum_price'] = payload['price_max']
+
             hist_actual.append(hist)
        
-        property_list.insert(0,processed_data[0][0])
-        
-        #save data        
-        xl_file = self.save_data(property_list,'excel','{ptype}_db'.format(ptype = ptype))
-        self.file_uploadGDrive(xl_file,'PROPERTY_DB')
-        csv_file = self.save_data(property_list,'csv','{ptype}_db'.format(ptype = ptype))
-        self.file_uploadGDrive(csv_file,'PROPERTY_DB')
-                
-        #updating stats
-        self.stats['Dat']
-    
+        print('total number of properties collected-->'+str(total))
 
-        print (histogram)
-        print('total number of properties -->'+str(total))
-        txt_file = self.createTextFile ((histogram,str('total number of properties -->')+str(total)),'Parsed properties.txt')        
-        self.file_uploadGDrive(txt_file)
     
-        return None
-    
-
+        return property_list,hist_actual
                            
