@@ -271,7 +271,7 @@ class Spyder(object):
        #authenticated GoogleDrive object
         drive = build('drive', 'v3', credentials = creds)
         
-        time.sleep(1)
+        time.sleep(5)
         
         return drive
     
@@ -313,6 +313,8 @@ class Spyder(object):
             if status:
                 print ("Uploaded %d%%." % int(status.progress() * 100))
         print ("Upload Complete!")
+        
+        time.sleep(5)
         
         return None
         
@@ -371,6 +373,9 @@ class Spyder(object):
             status, done = downloader.next_chunk()
             print ("Download '"+str(file_name)+"' %d%%." % int(status.progress() * 100))            
                
+            
+        time.sleep(5)
+        
         return file_name
         
     
@@ -405,6 +410,7 @@ class Spyder(object):
             #download the latest version of the file                        
             files.append(self.fileDownloadGdrive(name,folder_name))
         
+        time.sleep(5)
        
         return files     
 
@@ -441,7 +447,9 @@ class Spyder(object):
                                     addParents=folder_ID,
                                     removeParents=previous_parents,
                                     fields='id, parents').execute()
-                
+        
+        time.sleep(5)
+        
         return print ('Temp folder cleaned')
 
     def cont_flag_set(self):
