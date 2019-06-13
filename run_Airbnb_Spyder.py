@@ -87,7 +87,6 @@ def collectDb():
     
     df_groups1= hist_all.groupby(level = 0).sum()['n_properties']    
 
-
     file_name = 'db_all.xlsx'
 
 

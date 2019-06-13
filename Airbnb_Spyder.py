@@ -236,7 +236,6 @@ class Airbnb_spyder(Spyder):
                 
         
         print(numb_prop)
-        print (property['property_type'])
         
         return property_list,numb_prop
         
@@ -355,6 +354,7 @@ class Airbnb_spyder(Spyder):
             while last_page_flag:        
                 payload = {'price_min':row[1][1],'price_max':row[1][2],'items_offset':ofs}                        
                 data = self.getJson(payload)
+                print ('Ptype -->'+str(ptype))
                 processed_data = self.parsePage(data)
                 property_list.extend(processed_data[0][1:])
                 number = processed_data[1]         
