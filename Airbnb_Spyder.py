@@ -155,17 +155,20 @@ class Airbnb_spyder(Spyder):
         pages where some dict keys can be missing for some properties)
         
         """
-                
-        if args and data:
-            element  = args[0]
-
-            if isinstance(element,str):                
-                value = data.get(element)
+        try: 
+            if args and data:
+                element  = args[0]
+    
+                if isinstance(element,str):                
+                    value = data.get(element)
+                else:
+                    value = data[element]                
+    
+                return value if len(args) == 1 else self.parserHelper(value, *args[1:])
             else:
-                value = data[element]                
-
-            return value if len(args) == 1 else self.parserHelper(value, *args[1:])
-        else:
+                return None
+       
+        except (KeyError,IndexError):
             return None
 
     def parsePage(self,data):
@@ -233,6 +236,7 @@ class Airbnb_spyder(Spyder):
                 
         
         print(numb_prop)
+        print (property['property_type'])
         
         return property_list,numb_prop
         
