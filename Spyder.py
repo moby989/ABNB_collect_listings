@@ -17,6 +17,7 @@ import sys
 import pickle
 import os.path
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import googleapiclient.http
@@ -275,6 +276,50 @@ class Spyder(object):
         
         return drive
     
+    def GDriveHelper(self,drive,count = 1,**kwargs):
+        """
+        handles exceptions during requests to GoogleDrive
+        
+        """
+        try:        
+            if kwargs['func'] =='list':  
+                kwargs.pop('func')
+                result = drive.files().list(**kwargs).execute()
+                return result
+            
+            if kwargs['func'] =='get':        
+                kwargs.pop('func')
+                result = drive.files().get(**kwargs).execute()    
+                return result
+                
+            if kwargs['func'] =='create':            
+                kwargs.pop('func')
+                result = drive.files().get(**kwargs).execute()                
+                return result
+                
+            if kwargs['func'] =='get_media':            
+                kwargs.pop('func')
+                result = drive.files().get_media(**kwargs)                
+                return result
+            
+            if kwargs['func'] =='update':            
+                kwargs.pop('func')
+                result = drive.files().update(**kwargs).execute()                
+                return result
+
+        except HttpError as err:
+            if err.resp.status in [403, 429, 500]:
+                time.sleep(5)
+                count +=1         
+                if count < 5:
+                    print ('try one more tine to access Gdrive')
+                    print ('count = '+str(count))
+                    result = self.GDriveHelper(self,drive,count,**kwargs)                
+            else: raise
+            
+            return None
+
+    
     def file_uploadGDrive(self, name, folder_name = None):
 
         """
@@ -288,7 +333,10 @@ class Spyder(object):
 
         #searching for folder name        
         try:
-            folder_ID_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+            folder_ID_list = self.GDriveHelper(drive,func = 'list',\
+                q = "mimeType = 'application/vnd.google-apps.folder' \
+                and name contains '{name}'".format(name = folder_name)).execute()
+  
             folder_ID = folder_ID_list['files'][0]['id'] 
     
         except IndexError:
@@ -304,18 +352,15 @@ class Spyder(object):
           'description': 'Upload time: '+str(current_timezone)}
         
         #Perform the request and print the result.
-        request = drive.files().create(body=body, media_body=media_body)
-#        print (request)        
+        request = self.GDriveHelper(drive,func = 'create',body=body, media_body=media_body)
         response = None
+
         while response is None:
             status, response = request.next_chunk()
-#            print ('loading next chunk')
             if status:
                 print ("Uploaded %d%%." % int(status.progress() * 100))
         print ("Upload Complete!")
-        
-        time.sleep(5)
-        
+                
         return None
         
     def fileDownloadGdrive(self,name,folder_name = None):
@@ -333,7 +378,7 @@ class Spyder(object):
         #searching Folder_ID
         if folder_name:             
             try:
-                folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+                folder_list = self.GDriveHelper(drive,func = 'list',q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name))
                 folder_ID = folder_list['files'][0]['id']
     
             except IndexError:
@@ -342,17 +387,14 @@ class Spyder(object):
                 return None
 
             #search file name and getting list of files containing such name        )
-            file_list = drive.files().list(q = "'{folder_ID}' in parents and name contains '{name}' and trashed=false".format(name = name, folder_ID = folder_ID)).execute()
-#            print ('ищем в папке')
-#            print (file_list)
+            file_list = self.GDriveHelper(drive,func = 'list',q = "'{folder_ID}' in parents and name contains '{name}' and trashed=false".format(name = name, folder_ID = folder_ID))
 
         else:
-            file_list = drive.files().list(q = "name contains '{name}' and trashed=false".format(name = name)).execute()
-#            print ('ищем везде')
+            file_list = self.GDriveHelper(drive,func = 'list',q = "name contains '{name}' and trashed=false".format(name = name))
             
         #finding the latest file
         for file in file_list['files']:        
-            metadata = drive.files().get(fileId = file['id'], fields = 'modifiedTime,id').execute()
+            metadata = self.GDriveHelper(drive,func = 'get',fileId = file['id'], fields = 'modifiedTime,id')
             mod_date.append(metadata['modifiedTime'])
        
         try:
@@ -365,16 +407,13 @@ class Spyder(object):
 
         #downloading the file
         
-        request = drive.files().get_media(fileId=file_id)
+        request = self.GDriveHelper(drive,func = 'get_media',fileId=file_id)
         fh = io.FileIO(file_name,'wb') #file name
         downloader = MediaIoBaseDownload(fh, request) #downloading
         done = False
         while done is False:
             status, done = downloader.next_chunk()
-            print ("Download '"+str(file_name)+"' %d%%." % int(status.progress() * 100))            
-               
-            
-        time.sleep(5)
+            print ("Download '"+str(file_name)+"' %d%%." % int(status.progress() * 100))                                   
         
         return file_name
         
@@ -386,9 +425,8 @@ class Spyder(object):
         
         #search for FolderID            
         try:
-            folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+            folder_list = self.GDriveHelper(drive,func = 'list',q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name))
             folder_ID = folder_list['files'][0]['id'] 
-#            print (folder_ID)
     
         except IndexError:
             print ('Folder is not found')
@@ -399,8 +437,7 @@ class Spyder(object):
         files = []
         for name in args:
             try:
-                drive.files().list(q = "'{folder_ID}' in parents and trashed=false and name contains '{name}'".format(folder_ID = folder_ID, name = name)).execute()                        
-#                file_ID = file_list['files'][0]['id']            
+                self.GDriveHelper(drive,func = 'list',q = "'{folder_ID}' in parents and trashed=false and name contains '{name}'".format(folder_ID = folder_ID, name = name))
             
             except IndexError:
                 print ('Temp files are not found')
@@ -408,9 +445,7 @@ class Spyder(object):
                 return None
         
             #download the latest version of the file                        
-            files.append(self.fileDownloadGdrive(name,folder_name))
-        
-        time.sleep(5)
+            files.append(self.fileDownloadGdrive(name,folder_name))        
        
         return files     
 
@@ -425,7 +460,7 @@ class Spyder(object):
         
         #search for FolderID            
         try:
-            folder_list = drive.files().list(q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name)).execute()
+            folder_list = self.GDriveHelper(drive,func = 'list',q = "mimeType = 'application/vnd.google-apps.folder' and name contains '{name}'".format(name = folder_name))
             folder_ID = folder_list['files'][0]['id'] 
             
         except IndexError:
@@ -433,22 +468,20 @@ class Spyder(object):
             return None
         
         #clean the folder        
-        file_list = drive.files().list(q = "'{folder_ID}' in parents and trashed=false".format(folder_ID = folder_ID)).execute()            
+        file_list = self.GDriveHelper(drive,func = 'list',q = "'{folder_ID}' in parents and trashed=false".format(folder_ID = folder_ID))
         for file in file_list['files']:
             file_ID = file['id']
             folder_ID = '1xmZaxmRIhFkBYbthTshl1TAuGeZAvzfe'
         
             # Retrieve the existing parents to remove
-            file = drive.files().get(fileId=file_ID,
-                                 fields='parents').execute()
+            file = self.GDriveHelper(drive,func = 'get',fileId=file_ID,
+                                 fields='parents')
             previous_parents = ",".join(file.get('parents'))
             # Move the file to the new folder
-            file = drive.files().update(fileId=file_ID,
+            file = self.GDriveHelper(drive,func = 'update',fileId=file_ID,
                                     addParents=folder_ID,
                                     removeParents=previous_parents,
-                                    fields='id, parents').execute()
-        
-        time.sleep(5)
+                                    fields='id, parents')
         
         return print ('Temp folder cleaned')
 
