@@ -38,7 +38,6 @@ class Spyder(object):
         self.calls = 0 ## counter for requests, later if the number of requests >200 
         #the code freezes for 200sec
         self.today = datetime.today().date()
-        self.errors_URL = 0
     
     
     def makeCookiesDict(self,cookies):
@@ -270,9 +269,7 @@ class Spyder(object):
             with open('token.pickle', 'wb') as token:
                 pickle.dump(creds, token)
        #authenticated GoogleDrive object
-        drive = build('drive', 'v3', credentials = creds)
-        
-        time.sleep(5)
+        drive = build('drive', 'v3', credentials = creds)    
         
         return drive
     
@@ -281,40 +278,40 @@ class Spyder(object):
         handles exceptions during requests to GoogleDrive
         
         """
-        try:        
-            if kwargs['func'] =='list':  
-                kwargs.pop('func')
+        func =  kwargs.pop('func')
+
+        try:                                        
+            if func =='list':               
                 result = drive.files().list(**kwargs).execute()
                 return result
             
-            if kwargs['func'] =='get':        
-                kwargs.pop('func')
-                result = drive.files().get(**kwargs).execute()    
+            if func =='get':                       
+                result = drive.files().get(**kwargs).execute()
                 return result
                 
-            if kwargs['func'] =='create':            
-                kwargs.pop('func')
-                result = drive.files().get(**kwargs).execute()                
+            if func =='create':                          
+                result = drive.files().create(**kwargs)
                 return result
                 
-            if kwargs['func'] =='get_media':            
-                kwargs.pop('func')
-                result = drive.files().get_media(**kwargs)                
+            if func =='get_media':            
+                result = drive.files().get_media(**kwargs)  
+                print (result)
                 return result
             
-            if kwargs['func'] =='update':            
-                kwargs.pop('func')
+            if func =='update':            
                 result = drive.files().update(**kwargs).execute()                
                 return result
 
         except HttpError as err:
             if err.resp.status in [403, 429, 500]:
-                time.sleep(5)
                 count +=1         
                 if count < 5:
-                    print ('try one more tine to access Gdrive')
+                    print ('try one more time to access Gdrive')
                     print ('count = '+str(count))
-                    result = self.GDriveHelper(self,drive,count,**kwargs)                
+                    kwargs['func'] = func
+                    time.sleep(5)
+                    result = self.GDriveHelper(drive,count,**kwargs)
+
             else: raise
             
             return None
@@ -335,7 +332,7 @@ class Spyder(object):
         try:
             folder_ID_list = self.GDriveHelper(drive,func = 'list',\
                 q = "mimeType = 'application/vnd.google-apps.folder' \
-                and name contains '{name}'".format(name = folder_name)).execute()
+                and name contains '{name}'".format(name = folder_name))
   
             folder_ID = folder_ID_list['files'][0]['id'] 
     

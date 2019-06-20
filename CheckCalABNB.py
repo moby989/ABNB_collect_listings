@@ -32,14 +32,10 @@ def makeCalendarAvail(area_db = None, ptype = None, length = 351):
     end = datetime.today()+timedelta(days=length)    
     dates = pd.period_range(start=today.strftime('%Y-%m-%d'), end=end, freq='D')    
     files = Spyder().checkGdriveAndDownloand('Temp','temp_pindex.csv','temp_pcal')                
-
+#    files = None
     if isinstance(files[0],type(None)):
         print('Начинаем проверку календаря объектов сначала')
-#        file = my_spyder.fileDownloadGdrive('db_all.csv','Airbnb')
-#        df = pd.read_csv(file,index_col = 0)
-        df = aggregateDb()        
-#        Spyder().fileDownloadGdrive('{ptype}_db.csv'.format(ptype = ptype))    
-#        df = pd.read_csv('temp_pcal.csv')
+        df = pd.read_excel('Airbnb_current.xlsx')   
         df = df.set_index('id')
         df_index = df.index
         new_columns = ['localized_neighborhood','localized_city','privacy_type','property type','name','dprice','currency','review_score','nreviews','url','area','subdistrict','lats','lon','nbedrooms','max_guests','instant_booking','is_superhost','monthly_price_f','weekly_price_f','price_method','min_nights','max_nights','picture_count','picture_colour','host_lang','host_picture','date_collected_at','extra info']
@@ -80,7 +76,6 @@ def makeCalendarAvail(area_db = None, ptype = None, length = 351):
             df.update(date_df)
             df.update(url_df)
             df_index = df_index.delete([0])
-#            df.info(memory_usage = 'deep')
             print ('Current bunch:')
             print ('Checked '+str(df_index2[:100].get_loc(id)+1)+' out of '+str(df_index2[:100].size)+' properties to check.')
             print ('Total:')            
@@ -97,9 +92,7 @@ def makeCalendarAvail(area_db = None, ptype = None, length = 351):
             print ('There was an error during calendar check. Temporary results saved in TEMP folder')
         print(e.__class__)
         file_name = 'temp_pcal'
-#        df.to_excel(file_name+'.xlsx')
         df.to_csv(file_name+'.csv')
-#        my_spyder.file_uploadGDrive(file_name+'.xlsx','Temp')
         Spyder().file_uploadGDrive(file_name+'.csv','Temp')
         pd.DataFrame(df_index).to_csv('temp_pindex.csv',index = False)
         Spyder().file_uploadGDrive('temp_pindex.csv','Temp')
@@ -109,8 +102,8 @@ def makeCalendarAvail(area_db = None, ptype = None, length = 351):
         file_name = 'db_all_calendar'
         df.to_excel(file_name+'.xlsx')
         df.to_csv(file_name+'.csv')
-        Spyder().file_uploadGDrive(file_name+'.xlsx','Airbnb')
-        Spyder().file_uploadGDrive(file_name+'.csv','Airbnb')
+        Spyder().file_uploadGDrive(file_name+'.xlsx','PROPERTY_CAL_DB')
+        Spyder().file_uploadGDrive(file_name+'.csv','PROPERTY_CAL_DB')
         Spyder().cleanFolderGdrive('Temp')
         
     end = time.time()
@@ -143,9 +136,9 @@ def aggregateDb():
 
 
 
-#df = makeCalendarAvail()
+df = makeCalendarAvail()
     
-df = aggregateDb()
+#df = aggregateDb()
 
 """
     1) timestamp криво показывается
