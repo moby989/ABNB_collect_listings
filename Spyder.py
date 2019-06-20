@@ -273,7 +273,7 @@ class Spyder(object):
         
         return drive
     
-    def GDriveHelper(self,drive,count = 1,**kwargs):
+    def GDriveHelper(self,drive,*args,count = 1,**kwargs):
         """
         handles exceptions during requests to GoogleDrive
         
@@ -291,11 +291,23 @@ class Spyder(object):
                 
             if func =='create':                          
                 result = drive.files().create(**kwargs)
+                response = None
+
+                while response is None:
+                    status, response = result.next_chunk()
+                    if status:
+                        print ("Uploaded %d%%." % int(status.progress() * 100))
+                    print ("Upload Complete!")
                 return result
                 
-            if func =='get_media':            
+            if func =='get_media':   
                 result = drive.files().get_media(**kwargs)  
-                print (result)
+                fh = io.FileIO(args[0],'wb') #file name
+                downloader = MediaIoBaseDownload(fh, result) #downloading
+                done = False
+                while done is False:
+                    status, done = downloader.next_chunk()
+                    print ("Download '"+str(args[0])+"' %d%%." % int(status.progress() * 100)) 
                 return result
             
             if func =='update':            
@@ -310,11 +322,11 @@ class Spyder(object):
                     print ('count = '+str(count))
                     kwargs['func'] = func
                     time.sleep(5)
-                    result = self.GDriveHelper(drive,count,**kwargs)
+                    result = self.GDriveHelper(drive,*args,count,**kwargs)
 
             else: raise
             
-            return None
+            return result
 
     
     def file_uploadGDrive(self, name, folder_name = None):
@@ -349,14 +361,7 @@ class Spyder(object):
           'description': 'Upload time: '+str(current_timezone)}
         
         #Perform the request and print the result.
-        request = self.GDriveHelper(drive,func = 'create',body=body, media_body=media_body)
-        response = None
-
-        while response is None:
-            status, response = request.next_chunk()
-            if status:
-                print ("Uploaded %d%%." % int(status.progress() * 100))
-        print ("Upload Complete!")
+        self.GDriveHelper(drive,func = 'create',body=body, media_body=media_body)       
                 
         return None
         
@@ -404,13 +409,7 @@ class Spyder(object):
 
         #downloading the file
         
-        request = self.GDriveHelper(drive,func = 'get_media',fileId=file_id)
-        fh = io.FileIO(file_name,'wb') #file name
-        downloader = MediaIoBaseDownload(fh, request) #downloading
-        done = False
-        while done is False:
-            status, done = downloader.next_chunk()
-            print ("Download '"+str(file_name)+"' %d%%." % int(status.progress() * 100))                                   
+        self.GDriveHelper(drive,file_name,func = 'get_media',fileId=file_id)                                          
         
         return file_name
         

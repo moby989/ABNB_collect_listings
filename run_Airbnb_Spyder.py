@@ -23,18 +23,16 @@ Schedule:
 3) collect calendar - daily/different module
 
 
-Сделать загрузку файла ошибок и добавление новых данных
 client session id убрать из запросов
 сделать файл с отчетом и отсылку на емаэл в случае глобальной ошибки
 текстовый файл загрузка в папку
-переделать запись в HDF
+
 
 """
 day = datetime.isoweekday(Spyder().today)
 today = datetime.isocalendar(Spyder().today)
 timestamp = datetime.today().strftime('%Y-%m-%d, %H:%M:%S')
-
-
+    
 def collectDb():
     """
     collect all properties available for pre-defined price ranges and all types
@@ -42,13 +40,13 @@ def collectDb():
     """   
     
     #reading the list of URL to parse from GD
-    file_URL = Spyder().fileDownloadGdrive('URL_list_ABNB','URL_LIST')
-    URLs = pd.read_excel(file_URL,index_col = 0)
+   
     df_all = pd.DataFrame()
     hist_all = pd.DataFrame()
-    ptype_df = []
+#    ptype_df = []
     histogram_df=[]
     
+    URLs,ptype_df,histogram_df = Airbnb_spyder('').StartFromInterrupt(timestamp)
 
     for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
@@ -73,10 +71,12 @@ def collectDb():
         
         #save intermidiate data
         file_name = '{ptype}_db.xlsx'.format(ptype = ptype)
+        file_name2 = '{ptype}_hist.xlsx'.format(ptype = ptype)
         df_list.to_excel(file_name)
         df2 = pd.read_excel(ms.fileDownloadGdrive(file_name,'INTERMIDIATE_DATA'),
             index_col = 0) ##previous db to use later before we uploaded the new one
         Spyder().file_uploadGDrive(file_name,'INTERMIDIATE_DATA')
+        Spyder().file_uploadGDrive(file_name2,'INTERMIDIATE_DATA')
         
         ptype_df.append(df_list)
         histogram_df.append(hist_actual)
@@ -108,7 +108,6 @@ def collectDb():
     ms.file_uploadGDrive(file_name,'PROPERTY_DB')
 
     return df_all,hist_all,df_groups1,df_stat
-
 
 def collectHistogram():
     """
@@ -146,10 +145,3 @@ df = collectDb()
 
 #df_hist = collectHistogram()
 
-def StartFromInterrupt():
-    """
-    """
-    
-    pass 
-    
-    

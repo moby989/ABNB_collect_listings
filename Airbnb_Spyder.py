@@ -11,6 +11,7 @@ from json import JSONDecodeError
 import math
 import pandas as pd
 from Cookies import headers_ABNB,cookies_ABNB
+import sys
 
 class Airbnb_spyder(Spyder):
  
@@ -383,8 +384,9 @@ class Airbnb_spyder(Spyder):
         """
         
         #downloading historical data
-        file_STATS = Spyder().fileDownloadGdrive('STATS.xlsx','STATS')
-        df_stat = pd.read_excel(file_STATS).set_index('date_col')
+        file_STATS = self.fileDownloadGdrive('STATS.xlsx','STATS')
+        df_stat = pd.read_excel(file_STATS,sheet_name = 'STATS').set_index(['date_col','ptype']).sort_index(level =\
+                                     'date_col')
         try:
             df_add = pd.read_excel(file_STATS,sheet_name='ADDITIONS').set_index('date_col').loc[timestamp]   
         except KeyError:
@@ -396,7 +398,7 @@ class Airbnb_spyder(Spyder):
         
         #updating the df with a new statistics
         n_prop = len(df1.index.drop_duplicates())
-        ptype = df_stat['ptype'][0]
+        ptype = df1['ptype'][0]
     
         AddDisp = self.checkDbAddDisp(df1,df2)
         
@@ -406,7 +408,7 @@ class Airbnb_spyder(Spyder):
         df_add = df_add.append(AddDisp[0])
         df_disp = df_disp.append(AddDisp[1])
         
-        df_stat.loc[timestamp] = [ptype,n_prop,n_additions,n_disposals,\
+        df_stat.loc[timestamp,ptype] = [ptype,n_prop,n_additions,n_disposals,\
               self.errors_URL,self.errors_JSON]
     
         file_name = 'STATS.xlsx'
@@ -418,4 +420,49 @@ class Airbnb_spyder(Spyder):
         self.file_uploadGDrive(file_name,'STATS')
         
         return df_stat
-                               
+    
+    def StartFromInterrupt(self,timestamp):
+        """
+        Checker 
+        In case of early interrupt continues running the code from the point 
+        where last time it was aborted
+        """
+        timestamp = timestamp.split(',')[0]
+        file_URL = self.fileDownloadGdrive('URL_list_ABNB','URL_LIST')
+        URLs = pd.read_excel(file_URL,index_col = 0)
+        
+        file_STATS = Spyder().fileDownloadGdrive('STATS.xlsx','STATS')
+        df_stat = pd.read_excel(file_STATS,sheet_name = 'STATS').set_index(['date_col','ptype']).sort_index(level =\
+                                     'date_col')    
+        
+        last_date = df_stat.index.droplevel(1)[-1]
+        
+        if last_date.split(',')[0]!=timestamp:
+            return URLs,[],[]
+        
+        df_stat = df_stat.loc[last_date]
+
+#        print (df_stat)
+        if len(df_stat.index) == 3:
+            sys.exit()                      
+    
+        URLs = URLs.set_index('TYPE')
+#        print (URLs)
+        unparsed_ptypes = URLs.index.difference(df_stat.index)
+        URLs = URLs.loc[unparsed_ptypes].reset_index().rename(index = str,columns = {'index':'TYPE'})
+        
+#        print (URLs)
+        
+        #updating list with df which has been collected already today
+        ptype_df = []
+        histogram_df = []
+        for ptype in df_stat.index:
+            file_name = '{ptype}_db.xlsx'.format(ptype = ptype)
+            file_name2 = '{ptype}_hist.xlsx'.format(ptype = ptype)
+            df_list = pd.read_excel(self.fileDownloadGdrive(file_name,'INTERMIDIATE_DATA'),index_col = 0)
+            hist_actual = pd.read_excel(self.fileDownloadGdrive(file_name2,'INTERMIDIATE_DATA'),index_col = 0)
+            ptype_df.append(df_list)
+            histogram_df.append(hist_actual)
+
+        return URLs,ptype_df,histogram_df
+                                   
