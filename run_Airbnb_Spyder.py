@@ -26,6 +26,7 @@ Schedule:
 client session id убрать из запросов
 сделать файл с отчетом и отсылку на емаэл в случае глобальной ошибки
 текстовый файл загрузка в папку
+проверить почему в гнистограмму попадает нулевой диапазон цен
 
 
 """
@@ -73,6 +74,7 @@ def collectDb():
         file_name = '{ptype}_db.xlsx'.format(ptype = ptype)
         file_name2 = '{ptype}_hist.xlsx'.format(ptype = ptype)
         df_list.to_excel(file_name)
+        hist_actual.to_excel(file_name2)
         df2 = pd.read_excel(ms.fileDownloadGdrive(file_name,'INTERMIDIATE_DATA'),
             index_col = 0) ##previous db to use later before we uploaded the new one
         Spyder().file_uploadGDrive(file_name,'INTERMIDIATE_DATA')
