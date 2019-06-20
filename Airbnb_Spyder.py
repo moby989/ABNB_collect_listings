@@ -21,6 +21,7 @@ class Airbnb_spyder(Spyder):
         self.cookies = Spyder().makeCookiesDict(cookies_ABNB)
         self.headers = headers_ABNB
         self.errors_JSON = 0
+        self.errors_URL = 0
         
     def getNumberProp(self,data):
         
@@ -194,7 +195,8 @@ class Airbnb_spyder(Spyder):
             numb_prop = 0
             error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)            
             text_file = self.createTextFile (error_message,'errors.txt')
-            self.file_uploadGDrive(text_file,'Errors')            
+            self.file_uploadGDrive(text_file,'Errors')
+            self.errors_JSON +=1
             
         else:            
             for i in range(len(data_s)):
@@ -285,12 +287,11 @@ class Airbnb_spyder(Spyder):
         compares the current db with the previous to identify added or disposed
         properties        
         """
+        df1 = df1.set_index('id')
+        df2 = df2.set_index('id')
         
-        index1 = df1.index.droplevel(0)
-        index2 = df2.index.droplevel(0)
-        
-        additions = index1.difference(index2)
-        disposals = index2.difference(index1)
+        additions = df1.index.difference(df2.index)
+        disposals = df2.index.difference(df1.index)
                     
         df_additions = pd.DataFrame()
         df_disposals = pd.DataFrame()
@@ -299,18 +300,14 @@ class Airbnb_spyder(Spyder):
             if len(additions) ==0:
                 pass
             else:
-                df_additions = df1.reset_index(level = 0).\
-                reindex(index = additions).reset_index().set_index(['ptype','id']).sort_index(level =\
-                                         'ptype')
+                df_additions = df1.loc[additions]
         except AttributeError:
              pass   
         try:
             if len(disposals) == 0:
                 pass
             else:
-                df_disposals = df2.reset_index(level = 0).\
-                    reindex(index = disposals).reset_index().set_index(['ptype','id']).sort_index(level =\
-                                 'ptype')                          
+                df_disposals = df2.loc[disposals]                     
         except AttributeError:
             pass
                                         
@@ -345,6 +342,7 @@ class Airbnb_spyder(Spyder):
         total = 0        
         
         for row in histogram.loc[ptype].iterrows():
+     
             hist = {}
             number_t = 0
             number = 0
@@ -376,4 +374,48 @@ class Airbnb_spyder(Spyder):
 
     
         return property_list,hist_actual
-                           
+    
+    def collectStat(self,df1,df2,timestamp):
+        """
+        collect metrics for the last session of AirbnbSpyder (number of collected prop,
+        addded properries, disposed properties, etc)
+        
+        """
+        
+        #downloading historical data
+        file_STATS = Spyder().fileDownloadGdrive('STATS.xlsx','STATS')
+        df_stat = pd.read_excel(file_STATS).set_index('date_col')
+        try:
+            df_add = pd.read_excel(file_STATS,sheet_name='ADDITIONS').set_index('date_col').loc[timestamp]   
+        except KeyError:
+            df_add = pd.DataFrame()
+        try:
+            df_disp = pd.read_excel(file_STATS,sheet_name='DISPOSALS').set_index('date_col').loc[timestamp]
+        except KeyError:
+            df_disp = pd.DataFrame()
+        
+        #updating the df with a new statistics
+        n_prop = len(df1.index.drop_duplicates())
+        ptype = df_stat['ptype'][0]
+    
+        AddDisp = self.checkDbAddDisp(df1,df2)
+        
+        n_additions = len(AddDisp[0])
+        n_disposals = len(AddDisp[1])
+        
+        df_add = df_add.append(AddDisp[0])
+        df_disp = df_disp.append(AddDisp[1])
+        
+        df_stat.loc[timestamp] = [ptype,n_prop,n_additions,n_disposals,\
+              self.errors_URL,self.errors_JSON]
+    
+        file_name = 'STATS.xlsx'
+        with pd.ExcelWriter(file_name) as writer:
+            df_stat.to_excel(writer, sheet_name='STATS')
+            df_add.to_excel(writer, sheet_name='ADDITIONS')
+            df_disp.to_excel(writer, sheet_name='DISPOSALS')    
+        
+        self.file_uploadGDrive(file_name,'STATS')
+        
+        return df_stat
+                               

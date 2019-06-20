@@ -26,7 +26,6 @@ Schedule:
 Сделать загрузку файла ошибок и добавление новых данных
 client session id убрать из запросов
 сделать файл с отчетом и отсылку на емаэл в случае глобальной ошибки
-добавить счетчики 
 текстовый файл загрузка в папку
 переделать запись в HDF
 
@@ -47,6 +46,9 @@ def collectDb():
     URLs = pd.read_excel(file_URL,index_col = 0)
     df_all = pd.DataFrame()
     hist_all = pd.DataFrame()
+    ptype_df = []
+    histogram_df=[]
+    
 
     for URL in URLs.index:
         ms = Airbnb_spyder(URLs.URL[URL].strip('﻿'))
@@ -72,13 +74,22 @@ def collectDb():
         #save intermidiate data
         file_name = '{ptype}_db.xlsx'.format(ptype = ptype)
         df_list.to_excel(file_name)
+        df2 = pd.read_excel(ms.fileDownloadGdrive(file_name,'INTERMIDIATE_DATA'),
+            index_col = 0) ##previous db to use later before we uploaded the new one
         Spyder().file_uploadGDrive(file_name,'INTERMIDIATE_DATA')
         
-        #save aggregated data
-        df_all = df_all.append(df_list, sort = False)
-        hist_all = hist_all.append(hist_actual, sort = False)
+        ptype_df.append(df_list)
+        histogram_df.append(hist_actual)
+        
+        #save statistics
+        df1 = df_list       
+        df_stat = ms.collectStat(df1,df2,timestamp)
 
-    #saving final data   
+    #saving final data    
+    
+    df_all = pd.concat(ptype_df)
+    hist_all = pd.concat(histogram_df)
+    
 
     df_all = df_all.set_index(['ptype','id']).sort_index(level =\
                                      'ptype')
@@ -88,11 +99,6 @@ def collectDb():
     df_groups1= hist_all.groupby(level = 0).sum()['n_properties']    
 
     file_name = 'db_all.xlsx'
-
-
-    df1 = df_all
-    df2 = pd.read_excel(ms.fileDownloadGdrive(file_name,'PROPERTY_DB'),\
-                        index_col = [0,1]) ##previous db to use later
     
     with pd.ExcelWriter(file_name) as writer:
         df_all.to_excel(writer, sheet_name='db_all_without_cal')
@@ -101,31 +107,7 @@ def collectDb():
     
     ms.file_uploadGDrive(file_name,'PROPERTY_DB')
 
-    ##Collecting statistics
-    file_STATS = Spyder().fileDownloadGdrive('STATS.xlsx','STATS')
-    df_stat = pd.read_excel(file_STATS,index_col = 0)
-    
-    n_prop = len(df_all.index.droplevel(0).drop_duplicates())
-
-    AddDisp = ms.checkDbAddDisp(df1,df2)
-    
-    n_additions = len(AddDisp[0])
-    n_disposals = len(AddDisp[1])
-    
-    df_stat.loc[timestamp] = [ptype,n_prop,n_additions,n_disposals,\
-          ms.errors_URL,ms.errors_JSON]
-
-    file_name = 'STATS.xlsx'
-    with pd.ExcelWriter(file_name) as writer:
-        df_stat.to_excel(writer, sheet_name='STATS')
-        print ('add',AddDisp[0])
-        print ('disp',AddDisp[1])
-        AddDisp[0].to_excel(writer, sheet_name='ADDITIONS')
-        AddDisp[1].to_excel(writer, sheet_name='DISPOSALS')    
-    
-    ms.file_uploadGDrive(file_name,'STATS')
-
-    return df_all
+    return df_all,hist_all,df_groups1,df_stat
 
 
 def collectHistogram():
@@ -160,6 +142,14 @@ def collectHistogram():
     
     return df_hist    
 
-df_all = collectDb()
-#collectHistogram()
+df = collectDb()
+
+#df_hist = collectHistogram()
+
+def StartFromInterrupt():
+    """
+    """
+    
+    pass 
+    
     
