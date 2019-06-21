@@ -385,7 +385,7 @@ class Airbnb_spyder(Spyder):
         
         #downloading historical data
         file_STATS = self.fileDownloadGdrive('STATS.xlsx','STATS')
-        df_stat = pd.read_excel(file_STATS,sheet_name = 'STATS').set_index(['date_col','ptype']).sort_index(level =\
+        df_stat = pd.read_excel(file_STATS,sheet_name = 'STATS',index_col = [0,1]).sort_index(level =\
                                      'date_col')
         try:
             df_add = pd.read_excel(file_STATS,sheet_name='ADDITIONS').set_index('date_col').loc[timestamp]   
@@ -408,8 +408,25 @@ class Airbnb_spyder(Spyder):
         df_add = df_add.append(AddDisp[0])
         df_disp = df_disp.append(AddDisp[1])
         
-        df_stat.loc[timestamp,ptype] = [ptype,n_prop,n_additions,n_disposals,\
-              self.errors_URL,self.errors_JSON]
+        dict = {'date_col':timestamp,
+                'ptype':ptype,
+                'prop_collected':n_prop,
+                'new_properties':n_additions,
+                'disp_properties':n_disposals,
+                'errors_URL':self.errors_URL,
+                'errors_JSON':self.errors_JSON}
+        
+        stat = pd.DataFrame(dict,index = [1]).set_index(['date_col','ptype']).\
+                                sort_index(level =\
+                                     'date_col')
+                
+        print (stat)
+        df_stat = pd.concat([df_stat,stat]).sort_index(level =\
+                                     'date_col')
+        
+        print (df_stat)
+#        .loc[timestamp,ptype] = [n_prop,n_additions,n_disposals,\
+#              self.errors_URL,self.errors_JSON]
     
         file_name = 'STATS.xlsx'
         with pd.ExcelWriter(file_name) as writer:
@@ -432,7 +449,7 @@ class Airbnb_spyder(Spyder):
         URLs = pd.read_excel(file_URL,index_col = 0)
         
         file_STATS = Spyder().fileDownloadGdrive('STATS.xlsx','STATS')
-        df_stat = pd.read_excel(file_STATS,sheet_name = 'STATS').set_index(['date_col','ptype']).sort_index(level =\
+        df_stat = pd.read_excel(file_STATS,sheet_name = 'STATS',index_col = [0,1]).sort_index(level =\
                                      'date_col')    
         
         last_date = df_stat.index.droplevel(1)[-1]
