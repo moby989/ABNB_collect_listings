@@ -12,6 +12,9 @@ import math
 import pandas as pd
 from Cookies import headers_ABNB,cookies_ABNB
 import sys
+import numpy as np
+from pymongo.errors import DuplicateKeyError
+from datetime import datetime,timedelta
 
 class Airbnb_spyder(Spyder):
  
@@ -122,12 +125,11 @@ class Airbnb_spyder(Spyder):
         maxumum price (10000USD) exising to include the maximum amount of properties in 
         each range
         
-        """
-        
+        """        
         price_ranges = {}
-        histogram = [{'number of properties':0,'minimum_price':0,'maximum_price':0}]
+        histogram = []
         min = 0
-        max = 1250
+        max = 12
             
         while min < max:
             
@@ -138,10 +140,9 @@ class Airbnb_spyder(Spyder):
             histogram.append(price_ranges)
             min = min_max[1] + 1
             price_ranges = {}
-            print(histogram)
   
-        ##cover the properries which prices higher than 2000USD per night
-        min_max = self.getPriceRange(min,10000)
+        ##cover the properties which prices higher than 2000USD per night
+        min_max = self.getPriceRange(min,13)
         price_ranges['number of properties'] = min_max[2]
         price_ranges['minimum_price'] = min_max[0]
         price_ranges['maximum_price'] = min_max[1]
@@ -204,7 +205,7 @@ class Airbnb_spyder(Spyder):
                 
                 property = {}            
                 
-                property['id'] = self.parserHelper(data_s,i,'listing','id')
+                property['_id'] = self.parserHelper(data_s,i,'listing','id')
                 property['name'] = self.parserHelper(data_s,i,'listing','name')
                 property['localized_city'] = self.parserHelper(data_s,i,'listing','localized_city')
                 property['localized_neighborhood'] = self.parserHelper(data_s,i,'listing','localized_neighborhood')
@@ -252,34 +253,28 @@ class Airbnb_spyder(Spyder):
         
         property_calendar = {}        
         
-        for month in range (0,12):                
-    
+        for month in range (0,12):                    
             data_s = self.parserHelper(data,'calendar_months',month,'days')
 
             if isinstance(data_s,type(None)): #returns empty list if the server response was empty
-                error_message = "Can't retreive the data from the request (probably the response from the server was empty. URL -> {url}".format(url = self.url)
-                text_file = self.createTextFile (error_message,'errors.txt')
-                self.file_uploadGDrive(text_file)
                 property_calendar['extra info'] = 'no calendar data for the property'
+            else:                                
+                min_nights = self.parserHelper(data_s,0,'min_nights')
+                max_nights = self.parserHelper(data_s,0,'max_nights')
+                price_method = self.parserHelper(data_s,0,'price','type')                 
+                property_calendar['min_nights'] = min_nights
+                property_calendar['max_nights'] = max_nights
+                property_calendar['price_method'] = price_method
+                property_calendar['dynamic_pricing_updated_at'] = self.parserHelper(data,'calendar_months',0,'dynamic_pricing_updated_at')            
 
-            else:                
-                property_calendar['date_collected_at'] = self.parserHelper(data,'calendar_months',0,'dynamic_pricing_updated_at')            
                 for i in range(len(data_s)):                                    
                     if self.parserHelper(data_s,i,'available'):
                         date = self.parserHelper(data_s,i,'date')             
-                        price = int(self.parserHelper(data_s,i,'price','local_price'))
-                        min_nights = self.parserHelper(data_s,i,'min_nights')
-                        max_nights = self.parserHelper(data_s,i,'max_nights')
-                        price_method = self.parserHelper(data_s,i,'price','type')                                        
-                       
-                        property_calendar[date] = price
-                        property_calendar['min_nights'] = min_nights
-                        property_calendar['max_nights'] = max_nights
-                        property_calendar['price_method'] = price_method
-        
+                        price = int(self.parserHelper(data_s,i,'price','local_price'))                                                                                      
+                        property_calendar[date] = price                                
                     else:
                         date = self.parserHelper(data_s,i,'date')
-                        property_calendar[date] = -1
+                        property_calendar[date] = np.NaN
                                         
         return property_calendar
     
@@ -314,22 +309,6 @@ class Airbnb_spyder(Spyder):
                                         
         return df_additions,df_disposals          
     
-    def collectNumberProp(self,ptype):
-
-        """
-        collects the number of properties for each price range to get the number close to 300
-        """
-        
-        histogram = self.getPriceRangeWrapper()
-        name_histogram = '{ptype}_histogram'.format(ptype = ptype)
-    
-        #saving data
-        xl_file = self.save_data(histogram,'excel',name_histogram)
-        self.file_uploadGDrive(xl_file,'OTHER_DATA')
-        csv_file = self.save_data(histogram,'csv',name_histogram)
-        self.file_uploadGDrive(csv_file,'OTHER_DATA')
-                        
-        return histogram
     
     def collect_db(self,ptype,histogram):
     
@@ -342,7 +321,7 @@ class Airbnb_spyder(Spyder):
         hist = {}
         total = 0        
         
-        for row in histogram.loc[ptype].iterrows():
+        for raw in histogram:            
      
             hist = {}
             number_t = 0
@@ -351,7 +330,7 @@ class Airbnb_spyder(Spyder):
             last_page_flag = True        
             
             while last_page_flag:        
-                payload = {'price_min':row[1][1],'price_max':row[1][2],'items_offset':ofs}                        
+                payload = {'price_min':raw['minimum_price'],'price_max':raw['maximum_price'],'items_offset':ofs}                        
                 data = self.getJson(payload)
                 print ('Ptype -->'+str(ptype))
                 processed_data = self.parsePage(data)
@@ -366,7 +345,7 @@ class Airbnb_spyder(Spyder):
             total += number_t
     
             hist['n_properties'] = number_t
-            hist['minumum_price'] = payload['price_min']
+            hist['minimum_price'] = payload['price_min']
             hist['maximum_price'] = payload['price_max']
 
             hist_actual.append(hist)
@@ -482,4 +461,35 @@ class Airbnb_spyder(Spyder):
             histogram_df.append(hist_actual)
 
         return URLs,ptype_df,histogram_df
-                                   
+    
+    def addRecordMongoDB(self,data,MongoDb,db_name,collection_name):    
+        """
+        insert records into MongoDb    
+        """  
+        db = MongoDb[db_name]
+        record = db[collection_name]
+        try:
+            record.insert_one(data)
+        except DuplicateKeyError:
+            record.update_one({'_id':data['_id']},{'$set':data},upsert = True)        
+        return None
+                                       
+    
+    def collectNumberProp(self,ptype):
+
+        """
+        DEPRECIATED    
+    
+        collects the number of properties for each price range to get the number close to 300
+        """
+        
+        histogram = self.getPriceRangeWrapper()
+        name_histogram = '{ptype}_histogram'.format(ptype = ptype)
+    
+        #saving data
+        xl_file = self.save_data(histogram,'excel',name_histogram)
+        self.file_uploadGDrive(xl_file,'OTHER_DATA')
+        csv_file = self.save_data(histogram,'csv',name_histogram)
+        self.file_uploadGDrive(csv_file,'OTHER_DATA')
+                        
+        return histogram
