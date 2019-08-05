@@ -105,7 +105,7 @@ def collectHistogram():
     collection = db['VARIABLES']
     
     #return collection
-    ptypes = collection.find_one()['url_ptype']
+    ptypes = collection.find_one()['url_ptype3']
  
     #collect price ranges         
     for ptype in ptypes:
