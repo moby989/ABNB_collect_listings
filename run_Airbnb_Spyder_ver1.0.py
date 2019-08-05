@@ -107,7 +107,6 @@ def collectHistogram():
                          
     return None    
 
+hist = collectHistogram()
 df = collectDb('2019-08-05')
-
-#hist = collectHistogram()
 
