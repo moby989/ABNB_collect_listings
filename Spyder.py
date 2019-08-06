@@ -7,7 +7,7 @@ Created on Fri Feb  1 17:11:41 2019
 """
 from __future__ import print_function
 from bs4 import BeautifulSoup
-from file_writer import FileWriter
+#from file_writer import FileWriter
 import time
 import csv
 import requests
@@ -38,6 +38,10 @@ class Spyder(object):
         self.calls = 0 ## counter for requests, later if the number of requests >200 
         #the code freezes for 200sec
         self.today = datetime.today().date()
+        self.today_timestamp = datetime.today()    
+        self.year = self.today.year
+        self.month = self.today.month
+        self.now = datetime.now()
     
     
     def makeCookiesDict(self,cookies):
@@ -162,7 +166,7 @@ class Spyder(object):
         self.calls +=1
                 
         if check_calc:            
-            delay = random.randint(20,30)
+            delay = random.randint(0,15)
         else:
             delay = random.randint(1,15)
 
