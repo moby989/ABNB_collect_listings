@@ -7,12 +7,13 @@ Created on Wed Mar 20 19:39:41 2019
 
 """
 
+"""
+добавить дату скрейпинга в листинг объектов
+"""
+
 from Airbnb_Spyder import Airbnb_spyder as AS
-#from Spyder import Spyder as S
-#import pandas as pd
 from datetime import datetime
 from pymongo import MongoClient
-#import pymongo
 
     
 #initialise Mongodb
@@ -54,9 +55,12 @@ def collectDb(db = db):
 
         #collect property db and real histogram
         scraping_results = ms.collect_db(ptype,histogram)
-        listings = scraping_results[0]        
-        hist_actual = scraping_results[1]        
 
+        listings = scraping_results[0]        
+        for l in listings:
+            l['scraping_date'] = ms.today.strftime('%Y-%m-%d')
+        
+        hist_actual = scraping_results[1]        
         for h in hist_actual:
             h['ptype'] = ptype
             
@@ -123,7 +127,7 @@ def collectHistogram():
     return None    
 
 
-#collectHistogram()
+collectHistogram()
 collectDb()
 
 
