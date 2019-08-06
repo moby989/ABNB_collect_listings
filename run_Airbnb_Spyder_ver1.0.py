@@ -124,6 +124,6 @@ def collectHistogram():
 
 
 hist = collectHistogram()
-df = collectDb('2019-08-05')
+df = collectDb('2019-08-06')
 
 
