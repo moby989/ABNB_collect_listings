@@ -113,7 +113,7 @@ def collectHistogram():
     for ptype in ptypes:
         print(ptype)
         ms = AS(ptypes[ptype].strip('﻿')) 
-        if (ms.today - l_scrap_date) < 7:
+        if (ms.today - l_scrap_date).days < 7:
             break
         histogram = ms.getPriceRangeWrapper()
         for p_range in histogram:
