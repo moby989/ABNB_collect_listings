@@ -60,6 +60,7 @@ def collectDb(db = db):
         listings = scraping_results[0]        
         for l in listings:
             l['scraping_date'] = ms.today.strftime('%Y-%m-%d')
+            l['ptype'] = ptype
         
         hist_actual = scraping_results[1]        
         for h in hist_actual:
@@ -76,7 +77,8 @@ def collectDb(db = db):
         for raw in hist_actual:                    
             collection_hist.find_one_and_update(
                     {'minimum_price':raw['minimum_price'],
-                     'ptype':ptype},
+                     'ptype':ptype,
+                     'scrap_date':scrap_date},
                     {'$set': 
                             {'n_actual':raw['n_properties'],
                              'parsed':True}}
