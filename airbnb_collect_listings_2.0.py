@@ -49,13 +49,13 @@ def collectDb(db = db):
         #query for histogram
        
         histogram_cursor  = collection_hist.find({'scrap_date':scrap_date,
-                                                  'parsed':False})
-    
+                                                  'parsed':False,
+                                                  'ptype':ptype})
     
         histogram = [h for h in histogram_cursor]
-        
-        print (histogram)
-
+        if histogram == []:
+            continue 
+ 
         #collect property db and real histogram
         scraping_results = ms.collect_db(ptype,histogram)                        
 
