@@ -8,7 +8,8 @@ Created on Wed Mar 20 19:39:41 2019
 """
 
 """
-добавить дату скрейпинга в листинг объектов
+в гистограмме сделать диапазоные непрерывающимися
+
 """
 
 from Airbnb_Spyder import Airbnb_spyder as AS
@@ -16,7 +17,9 @@ from datetime import datetime
 from pymongo import MongoClient
 from pymongo.errors import BulkWriteError
 
-    
+
+
+
 #initialise Mongodb
 client = MongoClient('mongodb+srv://moby:bodgyw-mEppu2-kedmof@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')
 db = client['airbnb_test']
@@ -41,6 +44,8 @@ def collectDb(db = db):
     scrap_date = collection_hist.find().sort('scrap_date',-1)[0]['scrap_date']
     print (scrap_date)
     
+    #initialise        
+    collection_listings = db.listings
 
     #collect listings data for each property type
     for ptype in ptypes:
@@ -69,7 +74,6 @@ def collectDb(db = db):
             h['ptype'] = ptype
             
         #upload to the server
-        collection_listings = db.listings
         try:
             collection_listings.insert_many(listings,ordered = False)
         except BulkWriteError as e:
@@ -84,12 +88,6 @@ def collectDb(db = db):
                     {'$set': 
                             {'n_actual':raw['n_properties'],
                              'parsed':True}})                
-
-    #update listings
-    collection_listings.update_many(
-                    {'scrap_date':scrap_date},
-                    {'$set': 
-                            {'timestamp':ms.today}}) 
                                 
     #clean histogram                                                                
     collection_hist.update_many(
@@ -120,7 +118,7 @@ def collectHistogram():
     #collect price ranges         
     for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
-        if (ms.today - l_scrap_date).days < 7:
+        if (ms.today - l_scrap_date).days < 1:
             break
         print(ptype)
         histogram = ms.getPriceRangeWrapper()
