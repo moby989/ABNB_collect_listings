@@ -49,13 +49,15 @@ def collectDb(db = db):
         #query for histogram
        
         histogram_cursor  = collection_hist.find({'scrap_date':scrap_date,
-                                                  'parsed':False,
-                                                  'ptype':ptype})
-
+                                                  'parsed':False})
+    
+    
         histogram = [h for h in histogram_cursor]
+        
+        print (histogram)
 
         #collect property db and real histogram
-        scraping_results = ms.collect_db(ptype,histogram)
+        scraping_results = ms.collect_db(ptype,histogram)                        
 
         listings = scraping_results[0]        
         for l in listings:
@@ -81,19 +83,19 @@ def collectDb(db = db):
                      'scrap_date':scrap_date},
                     {'$set': 
                             {'n_actual':raw['n_properties'],
-                             'parsed':True}}
-                                            )
-    #clean histogram                                                                
-    collection_hist.update_many(
-                    {'scrap_date':scrap_date},
-                    {'$set': 
-                            {'parsed':False}})     
-        
+                             'parsed':True}})                
+
     #update listings
     collection_listings.update_many(
                     {'scrap_date':scrap_date},
                     {'$set': 
                             {'timestamp':ms.today}}) 
+                                
+    #clean histogram                                                                
+    collection_hist.update_many(
+                    {'scrap_date':scrap_date},
+                    {'$set': 
+                            {'parsed':False}})                     
         
     return print('Job done')
 
