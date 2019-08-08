@@ -128,7 +128,19 @@ def collectHistogram():
             p_range['parsed'] = False
 
         #upload to the server 
-        db['histogram'].insert_many(histogram)
+        db.histogram.insert_many(histogram)
+        
+        #mark the newest histogram
+        db.histogram.update_many(
+                                {'date': {'$lte':l_scrap_date}},
+                                {'$set': {'time_status': 'old'}},
+                                upsert = True)
+
+        db.histogram.update_many(
+                                {'date': {'$gt':l_scrap_date}},
+                                {'$set': {'time_status': 'new'}},
+                                upsert = True)
+        
                          
     return None    
 
