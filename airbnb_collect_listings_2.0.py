@@ -9,6 +9,7 @@ Created on Wed Mar 20 19:39:41 2019
 
 """
 в гистограмме сделать диапазоные непрерывающимися
+класс для подсоюдинения к СУБД
 
 """
 
@@ -16,7 +17,6 @@ from Airbnb_Spyder import Airbnb_spyder as AS
 from datetime import datetime
 from pymongo import MongoClient
 from pymongo.errors import BulkWriteError
-
 
 
 
@@ -122,8 +122,8 @@ def collectHistogram():
     #collect price ranges         
     for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
-        if (ms.today - dt_scrap_date).days < 1:
-            print('histogram db still up-to-date (from {d}), continue \
+        if (ms.today - dt_scrap_date).days < 7:
+            print('histogram db still up-to-date (from {d}), continue \n\
                   with collecting listing db'.format(d = l_scrap_date))
             return None
         print('ptype\n'+str(ptype))
@@ -146,13 +146,12 @@ def collectHistogram():
     db.histogram.update_many(
                             {'scrap_date': {'$gt':l_scrap_date}},
                             {'$set': {'update_status': 'last'}},
-                            upsert = True)
-        
+                            upsert = True)        
                          
     return None    
 
 
 collectHistogram()
-collectDb()
+#collectDb()
 
 

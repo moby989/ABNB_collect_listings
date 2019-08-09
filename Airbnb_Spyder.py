@@ -75,7 +75,7 @@ class Airbnb_spyder(Spyder):
             return data
                 
     
-    def getPriceRange(self,min,max,max_p = None):
+    def getPriceRange(self,min,max,max_p = None,count = 0,delay = 5):
         
         """
         defines the range of prices for URL request to get the maximum number 
@@ -91,7 +91,13 @@ class Airbnb_spyder(Spyder):
         print ('number '+str(number)+' min '+str(min)+' max '+str(max))
         
         if isinstance(number,type(None)):
-            return min,max,0
+            if count < 5:
+                self.timer(delay)
+                count+=1
+                delay+=np.random.randint(10,20)             
+                min,max,number = self.getPriceRange(min,max,max_p,count,delay)
+            else:
+                return min,max,0            
         
         if max_p == None:                                    
             delta = int((max-min)//2)

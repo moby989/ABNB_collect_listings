@@ -132,7 +132,7 @@ class Spyder(object):
                        
         return data_extracted       
     
-    def get_r(self,url,payload = None,retry_count = 1,check_calc = False):
+    def get_r(self,url,payload = None,retry_count = 1,delay = 5, check_calc = False):
         
         """
         make requests with REQUESTS library
@@ -155,13 +155,14 @@ class Spyder(object):
 #            self.file_uploadGDrive(text_file,'Errors')
             retry_count +=1
             print ('Retry getting URL # '+str(retry_count))
-            if retry_count > 2:
+            if retry_count > 5:
                 self.errors_URL +=1
                 r = 1
             else:
-                delay = random.randint(1,15)
+                inc = random.randint(1,15)
+                delay = delay + inc
                 self.timer(delay)
-                r = self.get_r(url,payload,retry_count)                        
+                r = self.get_r(url,payload,retry_count,delay)                        
                 
         self.calls +=1
                 
