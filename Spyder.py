@@ -150,9 +150,9 @@ class Spyder(object):
 
         except (ConnectionError,Timeout,ReadTimeout):
             print ('Max retries or Timeout exceeded for URL {url}'.format(url = url))
-            error_message = 'Max retries or Timeout exceeded for URL {url}'.format(url = url)
-            text_file = self.createTextFile (error_message,'errors.txt')
-            self.file_uploadGDrive(text_file,'Errors')
+#            error_message = 'Max retries or Timeout exceeded for URL {url}'.format(url = url)
+#            text_file = self.createTextFile (error_message,'errors.txt')
+#            self.file_uploadGDrive(text_file,'Errors')
             retry_count +=1
             print ('Retry getting URL # '+str(retry_count))
             if retry_count > 2:

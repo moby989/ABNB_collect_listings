@@ -37,11 +37,12 @@ def collectDb(db = db):
     """   
     #load variables (URLs)
     collection = db.VARIABLES            
-    ptypes = collection.find_one()['url_ptype2']
+    ptypes = collection.find_one()['url_ptype3']
     
     #find the latest histogram/scrap_date
     collection_hist = db.histogram
-    scrap_date = collection_hist.find().sort('scrap_date',-1)[0]['scrap_date']
+    scrap_date = collection_hist.find({'ptype':'OTHER'}).\
+        sort('scrap_date',-1)[0]['scrap_date']
     print (scrap_date)
     
     #initialise        
@@ -51,8 +52,7 @@ def collectDb(db = db):
     for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
              
-        #query for histogram
-       
+        #query for histogram      
         histogram_cursor  = collection_hist.find({'scrap_date':scrap_date,
                                                   'parsed':False,
                                                   'ptype':ptype})
@@ -105,22 +105,29 @@ def collectHistogram():
     """
 
     #load url list to parse    
-    collection = db['VARIABLES']
+    ptypes = db['VARIABLES'].find_one()['url_ptype3']
+        
+    #check the latest date when histogram was reloaded (only the last ptype 
+    #to make sure the db is full) 
+    try:
+        l_scrap_date = db.histogram.find({'ptype':'OTHER'}).\
+                sort('scrap_date',-1)[0]['scrap_date']
+    except IndexError:
+        l_scrap_date = '1900-01-01'
+            
+    db.histogram.delete_many({'scrap_date':
+                                           {'$gt':l_scrap_date}})
+    dt_scrap_date = datetime.strptime(l_scrap_date,'%Y-%m-%d').date()    
     
-    #return collection
-    ptypes = collection.find_one()['url_ptype3']
-    
-    #check the latest date when histogram was reloaded    
-    collection_hist = db.histogram
-    l_scrap_date = collection_hist.find().sort('scrap_date',-1)[0]['scrap_date']
-    l_scrap_date = datetime.strptime(l_scrap_date,'%Y-%m-%d').date()
-         
     #collect price ranges         
     for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
-        if (ms.today - l_scrap_date).days < 1:
-            break
-        print(ptype)
+        if (ms.today - dt_scrap_date).days < 1:
+            print('histogram db still up-to-date (from {d}), continue \
+                  with collecting listing db'.format(d = l_scrap_date))
+            return None
+        print('ptype\n'+str(ptype))
+        print('histogram scrapping_date\n'+ms.today.strftime('%Y-%m-%d'))
         histogram = ms.getPriceRangeWrapper()
         for p_range in histogram:
             p_range['ptype'] = ptype
@@ -130,16 +137,16 @@ def collectHistogram():
         #upload to the server 
         db.histogram.insert_many(histogram)
         
-        #mark the newest histogram
-        db.histogram.update_many(
-                                {'date': {'$lte':l_scrap_date}},
-                                {'$set': {'time_status': 'old'}},
-                                upsert = True)
+    #mark the newest histogram
+    db.histogram.update_many(
+                            {'scrap_date': {'$lte':l_scrap_date}},
+                            {'$set': {'update_status': 'old'}},
+                            upsert = True)
 
-        db.histogram.update_many(
-                                {'date': {'$gt':l_scrap_date}},
-                                {'$set': {'time_status': 'new'}},
-                                upsert = True)
+    db.histogram.update_many(
+                            {'scrap_date': {'$gt':l_scrap_date}},
+                            {'$set': {'update_status': 'last'}},
+                            upsert = True)
         
                          
     return None    
