@@ -93,7 +93,7 @@ class Airbnb_spyder(Spyder):
         
         if max_p == None:    
             delta = int((max-min)//2)
-            if (300-number) < 10:
+            if (300-number) > 10:
                 return min,max,number
         else: 
             delta = int(math.fabs(max - max_p)//2)                               
@@ -127,7 +127,7 @@ class Airbnb_spyder(Spyder):
         """        
         price_ranges = {}
         histogram = []
-        min = 14
+        min = 0
         max = 2000
             
         while min < max:
