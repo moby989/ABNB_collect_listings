@@ -38,14 +38,13 @@ class Airbnb_spyder(Spyder):
                         
         return number_prop
     
-    def getJson(self,payload = None,retry_count = 1, check_calc = False):
+    def getJson(self,payload = None,retry_count = 0, check_calc = False,delay = 5):
         
         """
         HELPER FUNCTION
         retries requests if the previous attempt was unsuccessful
         
-        """
-        
+        """        
         if check_calc == True:
             r = self.get_r(self.url,payload, check_calc = True)
         
@@ -56,33 +55,32 @@ class Airbnb_spyder(Spyder):
             data = r.json()
         except (JSONDecodeError,AttributeError) as e:
             print(e.__class__)
-            error_message = 'There was an error getting JSON object from URL {url} and {payload}'.format(url = self.url,payload = payload)
-            text_file = self.createTextFile (error_message,'errors.txt')
-            self.file_uploadGDrive(text_file,'Errors')
             data = None
             
         print ('Retry getting JSON N '+str(retry_count))
 
         if isinstance(data,type(None)):
-            retry_count +=1             
-            if retry_count > 4:
+            if retry_count > 5:
                 self.errors_JSON +=1
                 print("can't make the request to API")
                 return data
             else:
-                self.getJson(payload,retry_count)
+                retry_count +=1   
+                delay += np.random.randint(10,20)
+                self.getJson(payload,retry_count,delay)
         else:
             return data
-                
-    
+                    
     def getPriceRange(self,min,max,max_p = None,count = 0,delay = 5):
         
         """
         defines the range of prices for URL request to get the maximum number 
         of propertes per request (close to 300)
         
-        """
-    
+        """   
+        if max_p == None and (max - min) > 100:
+            max = min + 100
+
         payload = {'price_min':min,'price_max':max}
         
         data = self.getJson(payload)
@@ -90,34 +88,29 @@ class Airbnb_spyder(Spyder):
         number = self.getNumberProp(data)  
         print ('number '+str(number)+' min '+str(min)+' max '+str(max))
         
-        if isinstance(number,type(None)):
-            if count < 5:
-                self.timer(delay)
-                count+=1
-                delay+=np.random.randint(10,20)             
-                min,max,number = self.getPriceRange(min,max,max_p,count,delay)
-            else:
-                return min,max,0            
+        if isinstance(number,type(None)):         
+            return min,max,0  
         
-        if max_p == None:                                    
+        if max_p == None:    
             delta = int((max-min)//2)
-            if number  <= 300:
+            if (300-number) < 10:
                 return min,max,number
         else: 
             delta = int(math.fabs(max - max_p)//2)                               
         
         if delta > 0:
+            print(max,min,delta)
             if number > 300:
                 min,max,number = self.getPriceRange(min,max-delta,max)
             elif (300 - number) > 10:
                 min,max,number = self.getPriceRange(min,max+delta,max)
             else:
                 return min,max,number                    
-        else:
-            
+        else:       
+            print(max,min,delta)
             if number > 300:
-                if max <=min:
-                    return min,max,number
+                if max <=min:                    
+                    return min,max,number                                                
                 else:
                     min,max,number = self.getPriceRange(min,max-1,max)
 
@@ -134,7 +127,7 @@ class Airbnb_spyder(Spyder):
         """        
         price_ranges = {}
         histogram = []
-        min = 0
+        min = 14
         max = 2000
             
         while min < max:

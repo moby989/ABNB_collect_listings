@@ -40,20 +40,17 @@ def collectDb(db = db):
     ptypes = collection.find_one()['url_ptype3']
     
     #find the latest histogram/scrap_date
-    collection_hist = db.histogram
-    scrap_date = collection_hist.find({'ptype':'OTHER'}).\
+    scrap_date = db.histogram.find({'ptype':'OTHER'}).\
         sort('scrap_date',-1)[0]['scrap_date']
     print (scrap_date)
     
-    #initialise        
-    collection_listings = db.listings
 
     #collect listings data for each property type
     for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
              
         #query for histogram      
-        histogram_cursor  = collection_hist.find({'scrap_date':scrap_date,
+        histogram_cursor  = db.histogram.find({'scrap_date':scrap_date,
                                                   'parsed':False,
                                                   'ptype':ptype})
     
@@ -66,7 +63,8 @@ def collectDb(db = db):
 
         listings = scraping_results[0]        
         for l in listings:
-            l['scraping_date'] = ms.today.strftime('%Y-%m-%d')
+            scraping_date = ms.today.strftime('%Y-%m-%d')
+            l['scraping_date'] = scraping_date
             l['ptype'] = ptype
         
         hist_actual = scraping_results[1]        
@@ -75,13 +73,13 @@ def collectDb(db = db):
             
         #upload to the server
         try:
-            collection_listings.insert_many(listings,ordered = False)
+            db.listings.insert_many(listings,ordered = False)
         except BulkWriteError as e:
             print('Error name\n'+str(e.__class__))
 
         #updating histogram collection on the server
         for raw in hist_actual:                    
-            collection_hist.find_one_and_update(
+            db.histogram.find_one_and_update(
                     {'minimum_price':raw['minimum_price'],
                      'ptype':ptype,
                      'scrap_date':scrap_date},
@@ -89,12 +87,23 @@ def collectDb(db = db):
                             {'n_actual':raw['n_properties'],
                              'parsed':True}})                
                                 
-    #clean histogram                                                                
-    collection_hist.update_many(
+    #clean histogram and listings                                                               
+    db.histogram.update_many(
                     {'scrap_date':scrap_date},
                     {'$set': 
-                            {'parsed':False}})                     
-        
+                            {'parsed':False}})   
+
+    db.listings.update_many(
+                            {'scrap_date': {'$lt':scraping_date}},
+                            {'$set': {'update_status': 'old'}},
+                            upsert = True)                       
+    
+    db.listings.update_many(
+                            {'scrap_date': scraping_date},
+                            {'$set': {'update_status': 'last'}},
+                            upsert = True)                       
+    
+    
     return print('Job done')
 
 
@@ -120,7 +129,7 @@ def collectHistogram():
     dt_scrap_date = datetime.strptime(l_scrap_date,'%Y-%m-%d').date()    
     
     #collect price ranges         
-    for ptype in ptypes:
+    for ptype in ['OTHER']:
         ms = AS(ptypes[ptype].strip('﻿')) 
         if (ms.today - dt_scrap_date).days < 7:
             print('histogram db still up-to-date (from {d}), continue \n\
