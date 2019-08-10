@@ -129,7 +129,7 @@ def collectHistogram():
     dt_scrap_date = datetime.strptime(l_scrap_date,'%Y-%m-%d').date()    
     
     #collect price ranges         
-    for ptype in ['OTHER']:
+    for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
         if (ms.today - dt_scrap_date).days < 7:
             print('histogram db still up-to-date (from {d}), continue \n\

@@ -78,8 +78,6 @@ class Airbnb_spyder(Spyder):
         of propertes per request (close to 300)
         
         """   
-        if max_p == None and (max - min) > 100:
-            max = min + 100
 
         payload = {'price_min':min,'price_max':max}
         
@@ -93,13 +91,12 @@ class Airbnb_spyder(Spyder):
         
         if max_p == None:    
             delta = int((max-min)//2)
-            if (300-number) > 10:
+            if number < 300:
                 return min,max,number
         else: 
             delta = int(math.fabs(max - max_p)//2)                               
         
         if delta > 0:
-            print(max,min,delta)
             if number > 300:
                 min,max,number = self.getPriceRange(min,max-delta,max)
             elif (300 - number) > 10:
@@ -107,7 +104,6 @@ class Airbnb_spyder(Spyder):
             else:
                 return min,max,number                    
         else:       
-            print(max,min,delta)
             if number > 300:
                 if max <=min:                    
                     return min,max,number                                                
@@ -132,12 +128,12 @@ class Airbnb_spyder(Spyder):
             
         while min < max:
             
-            min_max = self.getPriceRange(min,max)
+            min_max = self.getPriceRange(min,min+100)
             price_ranges['number of properties'] = min_max[2]
             price_ranges['minimum_price'] = min_max[0]
             price_ranges['maximum_price'] = min_max[1]
             histogram.append(price_ranges)
-            min = min_max[1] + 1
+            min = min_max[1]+1
             price_ranges = {}
   
         ##cover the properties which prices higher than 2000USD per night
