@@ -67,7 +67,9 @@ class Airbnb_spyder(Spyder):
             else:
                 retry_count +=1   
                 delay += np.random.randint(10,20)
-                self.getJson(payload,retry_count,delay)
+                print('wait a bit for a new request after the error')
+                self.timer(delay)
+                data = self.getJson(payload,retry_count,delay)
         else:
             return data
                     

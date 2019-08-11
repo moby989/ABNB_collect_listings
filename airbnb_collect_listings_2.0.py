@@ -40,17 +40,35 @@ def collectDb(db = db):
     ptypes = collection.find_one()['url_ptype3']
     
     #find the latest histogram/scrap_date
-    scrap_date = db.histogram.find({'ptype':'OTHER'}).\
-        sort('scrap_date',-1)[0]['scrap_date']
-    print (scrap_date)
+    try:
+        h_scrap_date = db.histogram.find({'ptype':'OTHER'}).\
+            sort('scrap_date',-1)[0]['scrap_date']
+        print ('histogram last scraping date --> '+str(h_scrap_date))
     
+    except (IndexError,KeyError):
+        print ('No histogram to use')
+                        
+    #check the latest listngs db scraping date
+    try:
+        l_scrap_date = db.listings.find({'ptype':'OTHER'}).\
+                sort('scraping_date',-1)[0]['scraping_date']        
+
+    except (IndexError,KeyError):
+         l_scrap_date = '1900-01-01'
+
+    dt_scrap_date = datetime.strptime(l_scrap_date,'%Y-%m-%d').date()
 
     #collect listings data for each property type
     for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿')) 
+        
+        if (ms.today - dt_scrap_date).days < 7:
+            print('listings db still up-to-date (from {d}), continue \n\
+                  with collecting listing db'.format(d = l_scrap_date))
+            return None
              
         #query for histogram      
-        histogram_cursor  = db.histogram.find({'scrap_date':scrap_date,
+        histogram_cursor  = db.histogram.find({'scrap_date':h_scrap_date,
                                                   'parsed':False,
                                                   'ptype':ptype})
     
@@ -82,24 +100,24 @@ def collectDb(db = db):
             db.histogram.find_one_and_update(
                     {'minimum_price':raw['minimum_price'],
                      'ptype':ptype,
-                     'scrap_date':scrap_date},
+                     'scrap_date':h_scrap_date},
                     {'$set': 
                             {'n_actual':raw['n_properties'],
                              'parsed':True}})                
                                 
     #clean histogram and listings                                                               
     db.histogram.update_many(
-                    {'scrap_date':scrap_date},
+                    {'scrap_date':h_scrap_date},
                     {'$set': 
                             {'parsed':False}})   
 
     db.listings.update_many(
-                            {'scrap_date': {'$lt':scraping_date}},
+                            {'scraping_date': {'$lt':scraping_date}},
                             {'$set': {'update_status': 'old'}},
                             upsert = True)                       
     
     db.listings.update_many(
-                            {'scrap_date': scraping_date},
+                            {'scraping_date': scraping_date},
                             {'$set': {'update_status': 'last'}},
                             upsert = True)                       
     
@@ -161,6 +179,6 @@ def collectHistogram():
 
 
 collectHistogram()
-#collectDb()
+collectDb()
 
 
