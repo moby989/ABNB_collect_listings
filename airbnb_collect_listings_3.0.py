@@ -92,7 +92,8 @@ def collectDb():
         return None        
     
     ##below part of the code is only executed if listings db is too old
-    #find the latest histogram/scrap_date
+    #find the latest histogram/scrap_date        
+    
     try:
         h_scrap_date = db.histogram.find({'ptype':'OTHER'}).\
             sort('scrap_date',-1)[0]['scrap_date']
@@ -116,7 +117,7 @@ def collectDb():
     ptypes = db.VARIABLES.find_one()['url_ptype3']                        
 
     #collect listings data for each property type
-    for ptype in ['ENTIREHomeVILLAS']:
+    for ptype in ptypes:
         ms = AS(ptypes[ptype].strip('﻿'))             
              
         #query for histogram      

@@ -92,20 +92,7 @@ class Spyder(object):
             except KeyError:
                print ("Invalid input please enter True or False!")
         
-    def save_data(self,data,format,file_name,folder_name = None):
-             
-        """
-        saves a data array into EXCEL/CSV file
-        
-        date is a list of dict where dict keys are the names of columns in the output file
-        
-        """
-            
-        writer = FileWriter(data)                
-        
-        file_name = writer.output_file(format,file_name,folder_name)
-                    
-        return file_name    
+   
 
     def createTextFile (self,data,name):
         
@@ -517,5 +504,21 @@ class Spyder(object):
        time.sleep(self.delay)
         
        pass
+   
+    def save_data(self,data,format,file_name,folder_name = None):
+             
+        """
+        [DEPRECIATED]
+        saves a data array into EXCEL/CSV file
+        
+        date is a list of dict where dict keys are the names of columns in the output file
+        
+        """
+            
+        writer = FileWriter(data)                
+        
+        file_name = writer.output_file(format,file_name,folder_name)
+                    
+        return file_name    
         
        
