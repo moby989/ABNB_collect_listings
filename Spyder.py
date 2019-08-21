@@ -7,7 +7,6 @@ Created on Fri Feb  1 17:11:41 2019
 """
 from __future__ import print_function
 from bs4 import BeautifulSoup
-#from file_writer import FileWriter
 import time
 import csv
 import requests
@@ -21,18 +20,19 @@ from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import googleapiclient.http
-#import pprint
-#import httplib2
 import io
 from googleapiclient.http import MediaIoBaseDownload
 from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
-#import pandas as pd
+from pymongo import MongoClient
+#from pymongo.errors import BulkWriteError
 
+#Global variables
+MdbClient = MongoClient('mongodb+srv://moby:bodgyw-mEppu2-kedmof@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')    
 
 class Spyder(object):
-
+    
     def __init__(self):
             
         self.calls = 0 ## counter for requests, later if the number of requests >200 
@@ -43,7 +43,10 @@ class Spyder(object):
         self.month = self.today.month
         self.now = datetime.now()
     
-    
+    def td(self,days):
+        period = timedelta(days)
+        return period
+                
     def makeCookiesDict(self,cookies):
         
         """

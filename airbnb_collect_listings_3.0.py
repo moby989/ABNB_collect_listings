@@ -100,7 +100,7 @@ def collectDb():
     
         dt_h_scrap_date = datetime.strptime(h_scrap_date,'%Y-%m-%d').date()
      
-        if (ms.today - dt_h_scrap_date).days < ldb_interval:
+        if (ms.today - dt_h_scrap_date).days < (ldb_interval+13):
             print('histogram db still up-to-date (from {d}), continue \n\
                   with collecting listing db'.format(d = l_scrap_date))              
         else:
@@ -178,7 +178,6 @@ def collectDb():
     
     
     return print('Job done')
-
 
 
 
