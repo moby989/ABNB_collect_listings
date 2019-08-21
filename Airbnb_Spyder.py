@@ -6,7 +6,7 @@ Created on Wed Mar 20 15:29:38 2019
 @author: moby
 """
 
-from Spyder import Spyder
+from Spyder import Spyder,MdbClient
 from json import JSONDecodeError
 import math
 import pandas as pd
@@ -14,10 +14,14 @@ from Cookies import headers_ABNB,cookies_ABNB
 import sys
 import numpy as np
 from pymongo.errors import DuplicateKeyError
-#from datetime import datetime,timedelta
+
+#Global variables
+db = MdbClient['airbnb_test']
 
 class Airbnb_spyder(Spyder):
- 
+
+    
+        
     def __init__(self,url):
         
         Spyder.__init__(self)
@@ -459,16 +463,21 @@ class Airbnb_spyder(Spyder):
 
         return URLs,ptype_df,histogram_df
     
-    def addRecordMongoDB(self,data,MongoDb,db_name,collection_name):    
+    def uploadMDB(self,data,collection_name):    
         """
         insert records into MongoDb    
         """  
-        db = MongoDb[db_name]
-        record = db[collection_name]
+#        db = MongoDb[db_name]
+#        record = db[collection_name]
+        collection = db[collection_name]
+        
         try:
-            record.insert_one(data)
+            collection.insert_one(data)
         except DuplicateKeyError:
-            record.update_one({'_id':data['_id']},{'$set':data},upsert = True)        
+            collection.update_one({'_id':data['_id']},
+                                       {'$set':
+                                               data},
+                                        upsert = True)        
         return None
                                        
     
