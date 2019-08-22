@@ -76,9 +76,10 @@ def collectDb():
     #interval to collect listings db    
     ldb_interval = 7
 
-    #check the latest date when listings db was collected and decide if new collection is neended    
+    #check the latest date when listings db was collected and decide if new collection is needed    
     try:
-        l_scrap_date = db.listings.find({'ptype':'OTHER'}).\
+        l_scrap_date = db.listings.find({'ptype':'OTHER',
+                                         'update_status':'last'}).\
                 sort('scraping_date',-1)[0]['scraping_date']        
 
     except (IndexError,KeyError):
@@ -92,8 +93,15 @@ def collectDb():
         return None        
     
     ##below part of the code is only executed if listings db is too old
-    #find the latest histogram/scrap_date        
-    
+    #archive the old db
+    if l_scrap_date!='1900-01-01':
+        db.listings.update_many(
+                            {'scraping_date': {'$lte':l_scrap_date}},
+                            {'$set': {'update_status': 'old'}},
+                            upsert = True)       
+        db.listings.rename('listings_{date}'.format(date = l_scrap_date))
+
+    #find the latest histogram/scrap_date            
     try:
         h_scrap_date = db.histogram.find({'ptype':'OTHER'}).\
             sort('scrap_date',-1)[0]['scrap_date']
@@ -163,23 +171,18 @@ def collectDb():
                     {'scrap_date':h_scrap_date},
                     {'$set': 
                             {'parsed':False}})   
-
-    db.listings.update_many(
-                            {'scraping_date': {'$lte':l_scrap_date}},
-                            {'$set': {'update_status': 'old'}},
-                            upsert = True)                       
-    
+                    
     db.listings.update_many(
                             {'scraping_date':{'$gt':l_scrap_date}},
                             {'$set': 
                                 {'update_status':'last',
                                  'cal_collected':'no',
+                                 'reviews_col':'no',
                                  'scraping_date':scraping_date}},
                             upsert = True)                       
     
     
     return print('Job done')
-
 
 
 collectDb()
