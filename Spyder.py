@@ -26,10 +26,14 @@ from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
 from pymongo import MongoClient
+import dns
 #from pymongo.errors import BulkWriteError
 
 #Global variables
-MdbClient = MongoClient('mongodb+srv://moby:bodgyw-mEppu2-kedmof@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')    
+MdbClient = MongoClient('mongodb+srv://moby:jD6IRuIzo1uajyl8@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')    
+
+API_key = '6f0b16ce-005f-4991-8ab0-0bfa363285f8'
+
 
 class Spyder(object):
     

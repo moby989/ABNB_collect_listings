@@ -147,10 +147,7 @@ def collectDb():
             l['ptype'] = ptype
         
         hist_actual = scraping_results[1]        
-        for h in hist_actual:
-            h['ptype'] = ptype
-            
-        #upload to the server
+         #upload to the server
         try:
             db.listings.insert_many(listings,ordered = False)
         except BulkWriteError as e:
@@ -168,7 +165,7 @@ def collectDb():
                                 
     #clean histogram and listings                                                               
     db.histogram.update_many(
-                    {'scrap_date':h_scrap_date},
+                    {'scrap_date':h_scrap_date},       
                     {'$set': 
                             {'parsed':False}})   
                     
