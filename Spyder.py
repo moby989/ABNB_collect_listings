@@ -26,13 +26,15 @@ from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
 from pymongo import MongoClient
-import dns
+#import dns
 #from pymongo.errors import BulkWriteError
 
 #Global variables
-MdbClient = MongoClient('mongodb+srv://moby:jD6IRuIzo1uajyl8@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')    
+#MdbClient = MongoClient('mongodb+srv://moby:jD6IRuIzo1uajyl8@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')    
 
-API_key = '6f0b16ce-005f-4991-8ab0-0bfa363285f8'
+MdbClient = MongoClient('mongodb+srv://moby:7IOMu3Xt8EWoabiU@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')
+
+#API_key = '6f0b16ce-005f-4991-8ab0-0bfa363285f8'
 
 
 class Spyder(object):
@@ -140,6 +142,7 @@ class Spyder(object):
         
         try:        
             r = requests.get(url, cookies = self.cookies, headers = self.headers, params = payload,timeout = 10)
+            print(r.url)
             print('URL -> ' + str(r.url))    
 
         except (ConnectionError,Timeout,ReadTimeout):

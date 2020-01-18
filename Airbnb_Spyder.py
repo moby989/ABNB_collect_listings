@@ -7,6 +7,7 @@ Created on Wed Mar 20 15:29:38 2019
 """
 
 from Spyder import Spyder,MdbClient
+#,MdbClient
 from json import JSONDecodeError
 import math
 import pandas as pd
@@ -19,9 +20,7 @@ from pymongo.errors import DuplicateKeyError
 db = MdbClient['airbnb_test']
 
 class Airbnb_spyder(Spyder):
-
-    
-        
+          
     def __init__(self,url):
         
         Spyder.__init__(self)
