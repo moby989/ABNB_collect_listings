@@ -15,7 +15,7 @@ Created on Wed Mar 20 19:39:41 2019
 from Airbnb_Spyder import Airbnb_spyder as AS
 #from Airbnb_Spyder import db
 from datetime import datetime
-from pymongo import MongoClient
+from pymongo import MongoClient,GEOSPHERE
 from pymongo.errors import BulkWriteError
 
 MC_l = MongoClient('mongodb+srv://moby:7IOMu3Xt8EWoabiU@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')
@@ -93,7 +93,7 @@ def collectDb():
     ms = AS('url')         
     if (ms.today - dt_scrap_date).days < ldb_interval:
         print('listings db still up-to-date (from {d})'.format(d = l_scrap_date))
-        return None        
+        return None
     
     ##below part of the code is only executed if listings db is too old
     #archive the old db
@@ -147,8 +147,7 @@ def collectDb():
         for l in listings:
             scraping_date = ms.today.strftime('%Y-%m-%d')
             l['scraping_date'] = scraping_date
-            l['ptype'] = ptype
-            l['geo'] = [l['lon'],l['lats']]
+            l['ptype'] = ptype            
         
         hist_actual = scraping_results[1]        
          #upload to the server
@@ -165,7 +164,9 @@ def collectDb():
                      'scrap_date':h_scrap_date},
                     {'$set': 
                             {'n_actual':raw['n_properties'],
-                             'parsed':True}})                
+                             'parsed':True}})
+    #make geo index
+    db.listings.create_index([("geo", GEOSPHERE)])
                                 
     #clean histogram and listings                                                               
     db.histogram.update_many(
@@ -180,10 +181,8 @@ def collectDb():
                                  'cal_collected':'no',
                                  'reviews_col':'no',
                                  'scraping_date':scraping_date}},
-                            upsert = True)                       
-    
-        
-    
+                            upsert = True)                                   
+  
     
     return print('Job done')
 

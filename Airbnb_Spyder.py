@@ -6,7 +6,8 @@ Created on Wed Mar 20 15:29:38 2019
 @author: moby
 """
 
-from Spyder import Spyder,MdbClient
+from Spyder import Spyder
+#,MdbClient
 #,MdbClient
 from json import JSONDecodeError
 import math
@@ -17,7 +18,7 @@ import numpy as np
 from pymongo.errors import DuplicateKeyError
 
 #Global variables
-db = MdbClient['airbnb_test']
+#db = MdbClient['airbnb_test']
 
 class Airbnb_spyder(Spyder):
           
@@ -214,8 +215,8 @@ class Airbnb_spyder(Spyder):
                 property['nreviews'] = self.parserHelper(data_s,i,'listing','reviews_count')
                 property['area'] = self.parserHelper(data_s,i,'listing','city') 
                 property['subdistrict'] = self.parserHelper(data_s,i,'listing','public_address')
-                property['lats'] = str(self.parserHelper(data_s,i,'listing','lat'))
-                property['lon'] = str(self.parserHelper(data_s,i,'listing','lng'))
+                property['lats'] = self.parserHelper(data_s,i,'listing','lat')
+                property['lon'] = self.parserHelper(data_s,i,'listing','lng')                
                 property['nbedrooms'] = self.parserHelper(data_s,i,'listing','bedrooms')
                 property['max_guests'] = self.parserHelper(data_s,i,'listing','person_capacity')
                 property['url'] = self.parserHelper(data_s,i,'listing','picture_url')
@@ -233,8 +234,13 @@ class Airbnb_spyder(Spyder):
                 property['picture_colour'] = self.parserHelper(data_s,i,'listing','picture','dominant_saturated_color')
                 property['privacy_type'] = self.parserHelper(data_s,i,'listing','room_type_category')
                 property['property type'] = self.parserHelper(data_s,i,'listing','space_type')
-                property['extra info'] = ''            
-    
+                property['extra info'] = ''     
+                
+                try:
+                    property['geo'] = [float(property['lon']),float(property['lats'])]
+                except TypeError:
+                    pass
+            
                 property_list.append(property)  
                 numb_prop = len(data_s)
                 
