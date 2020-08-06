@@ -18,7 +18,7 @@ from datetime import datetime
 from pymongo import MongoClient,GEOSPHERE
 from pymongo.errors import BulkWriteError
 
-MC_l = MongoClient('mongodb+srv://moby:7IOMu3Xt8EWoabiU@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')
+MC_l = MongoClient('mongodb+srv://moby:ATES7F6Ok2v3pyrB@test-cluster-khino.gcp.mongodb.net/test-cluster?retryWrites=true&w=majority')
 db = MC_l['airbnb_test']
 
 def collectHistogram(h_scrap_date):
