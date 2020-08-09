@@ -76,8 +76,8 @@ def collectDb():
     3) OTHER - other non-private properties        
     
     """   
-    #interval to collect listings db    
-    ldb_interval = 7
+    #interval to collect listings db - days
+    ldb_interval = 2
 
     #check the latest date when listings db was collected and decide if new collection is needed    
     try:
@@ -139,7 +139,14 @@ def collectDb():
         histogram = [h for h in histogram_cursor]
         if histogram == []:
             continue 
- 
+
+        #make price ranges in histogram closed
+        for h in  histogram:  
+            h.pop('_id','')
+            h.pop('n_actual','')
+            h['minimum_price'] = h['maximum_price']
+            h['maximum_price'] = h['minimum_price'] + 1        
+         
         #collect property db and real histogram
         scraping_results = ms.collect_db(ptype,histogram)                        
 
@@ -150,7 +157,8 @@ def collectDb():
             l['ptype'] = ptype            
         
         hist_actual = scraping_results[1]        
-         #upload to the server
+
+        #upload to the server
         try:
             db.listings.insert_many(listings,ordered = False)
         except BulkWriteError as e:
