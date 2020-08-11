@@ -17,6 +17,7 @@ from Airbnb_Spyder import Airbnb_spyder as AS
 from datetime import datetime
 from pymongo import MongoClient,GEOSPHERE
 from pymongo.errors import BulkWriteError
+import pandas as pd
 
 MC_l = MongoClient('mongodb+srv://moby:ATES7F6Ok2v3pyrB@test-cluster-khino.gcp.mongodb.net/test-cluster?retryWrites=true&w=majority')
 db = MC_l['airbnb_test']
@@ -141,11 +142,23 @@ def collectDb():
             continue 
 
         #make price ranges in histogram closed
-        for h in  histogram:  
+        hist_cl = []
+        for h in histogram:
             h.pop('_id','')
             h.pop('n_actual','')
-            h['minimum_price'] = h['maximum_price']
-            h['maximum_price'] = h['minimum_price'] + 1        
+            h_cl = h.copy()
+            h_cl['minimum_price'] = h['maximum_price']
+            h_cl['maximum_price'] = h_cl['minimum_price'] + 1
+            hist_cl.append(h_cl)
+
+        histogram.extend(hist_cl)
+        
+        #making histogramm pretty
+        df = pd.DataFrame(histogram)
+        col_list = list(df)
+        col_list[0],col_list[1] = col_list[1],col_list[0]
+        df = df.reindex(columns = col_list)
+        histogram = df.sort_values('minimum_price').to_dict('r')
          
         #collect property db and real histogram
         scraping_results = ms.collect_db(ptype,histogram)                        
