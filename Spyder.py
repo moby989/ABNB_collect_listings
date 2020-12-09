@@ -26,15 +26,7 @@ from requests.exceptions import Timeout
 from requests.exceptions import ConnectionError
 from requests.exceptions import ReadTimeout
 from pymongo import MongoClient
-#import dns
-#from pymongo.errors import BulkWriteError
 
-#Global variables
-#MdbClient = MongoClient('mongodb+srv://moby:jD6IRuIzo1uajyl8@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')    
-
-MdbClient = MongoClient('mongodb+srv://moby:7IOMu3Xt8EWoabiU@test-cluster-khino.gcp.mongodb.net/test?retryWrites=true&w=majority')
-
-#API_key = '6f0b16ce-005f-4991-8ab0-0bfa363285f8'
 
 
 class Spyder(object):
@@ -48,6 +40,7 @@ class Spyder(object):
         self.year = self.today.year
         self.month = self.today.month
         self.now = datetime.now()
+        self.proxies = {"https" : "http://119.82.252.122:36182"}
     
     def td(self,days):
         period = timedelta(days)
@@ -128,7 +121,7 @@ class Spyder(object):
                        
         return data_extracted       
     
-    def get_r(self,url,payload = None,retry_count = 1,delay = 5, check_calc = False):
+    def get_r(self,url,payload = None,retry_count = 1,delay = 5, check_calc = False, proxies = None):
         
         """
         make requests with REQUESTS library
@@ -141,7 +134,7 @@ class Spyder(object):
             self.calls = 0
         
         try:        
-            r = requests.get(url, cookies = self.cookies, headers = self.headers, params = payload,timeout = 10)
+            r = requests.get(url, cookies = self.cookies, headers = self.headers, params = payload,timeout = 10, proxies = proxies)
             print(r.url)
             print('URL -> ' + str(r.url))    
 
@@ -248,7 +241,11 @@ class Spyder(object):
             
     def access_gDrive(self):
         
-        """Shows basic usage of the Drive v3 API.
+        """
+        
+        DEPRECIATED
+        
+        Shows basic usage of the Drive v3 API.
         Prints the names and ids of the first 10 files the user has access to.
         """
         creds = None
@@ -277,6 +274,8 @@ class Spyder(object):
     
     def GDriveHelper(self,drive,*args,count = 1,**kwargs):
         """
+        DEPRECIATED
+        
         handles exceptions during requests to GoogleDrive
         
         """
@@ -334,6 +333,9 @@ class Spyder(object):
     def file_uploadGDrive(self, name, folder_name = None):
 
         """
+        
+        DEPRECIATED
+        
         upload a file to the authhenicated GoogleDrive
         
         """
@@ -370,6 +372,9 @@ class Spyder(object):
     def fileDownloadGdrive(self,name,folder_name = None):
         
         """
+        DEPRECIATED
+        
+        
         download the most recent file from the authhenicated GoogleDrive
         
         """
@@ -418,6 +423,8 @@ class Spyder(object):
     
     def checkGdriveAndDownloand(self,folder_name,*args):
         
+        "DEPRECIATED"
+        
         #authentication        
         drive = self.access_gDrive()
         
@@ -451,6 +458,8 @@ class Spyder(object):
     def cleanFolderGdrive(self,folder_name):
 
         """
+        DEPRECIATED
+        
         moves temporary files from Temp Folder into Trash Folder (Manual Trash)        
         """
         #authentication        

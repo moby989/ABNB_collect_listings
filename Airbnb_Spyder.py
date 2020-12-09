@@ -7,9 +7,7 @@ Created on Wed Mar 20 15:29:38 2019
 """
 
 from Spyder import Spyder
-#,MdbClient
-#,MdbClient
-from json import JSONDecodeError
+#from json import JSONDecodeError
 import math
 import pandas as pd
 from Cookies import headers_ABNB,cookies_ABNB
@@ -17,8 +15,6 @@ import sys
 import numpy as np
 from pymongo.errors import DuplicateKeyError
 
-#Global variables
-#db = MdbClient['airbnb_test']
 
 class Airbnb_spyder(Spyder):
           
@@ -42,23 +38,29 @@ class Airbnb_spyder(Spyder):
                         
         return number_prop
     
-    def getJson(self,payload = None,retry_count = 0, check_calc = False,delay = 5):
+    def getJson(self,payload = None,retry_count = 0, check_calc = False,delay = 5, proxies = None):
         
         """
         HELPER FUNCTION
         retries requests if the previous attempt was unsuccessful
         
-        """        
-        if check_calc == True:
-            r = self.get_r(self.url,payload, check_calc = True)
+        """   
+     
         
+        if check_calc == True:
+            print('rr')
+            r = self.get_r(self.url,payload, check_calc = True, proxies = proxies)
+            print('rr')
         else:
-            r = self.get_r(self.url,payload)
+            print('r')
+            r = self.get_r(self.url,payload)            
 
         try:        
             data = r.json()
-        except (JSONDecodeError,AttributeError) as e:
-            print(e.__class__)
+
+#        except (JSONDecodeError,AttributeError) as e:
+        except:
+#            print(e.__class__)
             data = None
             
         print ('Retry getting JSON N '+str(retry_count))
@@ -73,7 +75,8 @@ class Airbnb_spyder(Spyder):
                 delay += np.random.randint(10,20)
                 print('wait a bit for a new request after the error')
                 self.timer(delay)
-                data = self.getJson(payload,retry_count,delay)
+                print('USING PROXY')
+                data = self.getJson(payload,retry_count,delay, proxies = self.proxies)
         else:
             return data
                     
@@ -288,6 +291,9 @@ class Airbnb_spyder(Spyder):
         """
         compares the current db with the previous to identify added or disposed
         properties        
+        
+        DEPRECIATED
+        
         """
         df1 = df1.set_index('id')
         df2 = df2.set_index('id')
@@ -363,6 +369,8 @@ class Airbnb_spyder(Spyder):
     
     def collectStat(self,df1,df2,timestamp):
         """
+        DEPRECIATED
+        
         collect metrics for the last session of AirbnbSpyder (number of collected prop,
         addded properries, disposed properties, etc)
         
@@ -425,6 +433,8 @@ class Airbnb_spyder(Spyder):
     
     def StartFromInterrupt(self,timestamp):
         """
+        DEPRECIATED
+        
         Checker 
         In case of early interrupt continues running the code from the point 
         where last time it was aborted
@@ -469,11 +479,11 @@ class Airbnb_spyder(Spyder):
         return URLs,ptype_df,histogram_df
     
     def uploadMDB(self,data,collection_name):    
+        
         """
         insert records into MongoDb    
         """  
-#        db = MongoDb[db_name]
-#        record = db[collection_name]
+
         collection = db[collection_name]
         
         try:

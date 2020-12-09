@@ -13,13 +13,18 @@ Created on Wed Mar 20 19:39:41 2019
 """
 
 from Airbnb_Spyder import Airbnb_spyder as AS
-#from Airbnb_Spyder import db
 from datetime import datetime
 from pymongo import MongoClient,GEOSPHERE
 from pymongo.errors import BulkWriteError
 import pandas as pd
+import os
 
-MC_l = MongoClient('mongodb+srv://moby:ATES7F6Ok2v3pyrB@test-cluster-khino.gcp.mongodb.net/test-cluster?retryWrites=true&w=majority')
+
+MDB_key = os.getenv(MDB_key)
+
+access_string = 'mongodb+srv://'+MDB_key+'@test-cluster-khino.gcp.mongodb.net/test-cluster?retryWrites=true&w=majority'
+
+MC_l = MongoClient(access_string)
 db = MC_l['airbnb_test']
 
 def collectHistogram(h_scrap_date):
@@ -78,7 +83,7 @@ def collectDb():
     
     """   
     #interval to collect listings db - days
-    ldb_interval = 2
+    ldb_interval = 7
 
     #check the latest date when listings db was collected and decide if new collection is needed    
     try:
